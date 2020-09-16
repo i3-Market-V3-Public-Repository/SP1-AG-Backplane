@@ -1,4 +1,6 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
+import * as fs from 'fs';
+import * as https from 'https';
 
 export * from './application';
 
@@ -15,21 +17,27 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
-  // Run the application
+  const cert = fs.readFileSync('./certificates/cert.pem');
+  const key = fs.readFileSync('./certificates/key.key');
+
+  https.globalAgent.options.ca = fs.readFileSync('../greeter-service/certificates/cert.pem');
+  https.globalAgent.options.cert = cert;
+  https.globalAgent.options.key = key;
+  https.globalAgent.options.passphrase = 'pass';
+
   const config = {
     rest: {
       port: +(process.env.PORT ?? 3000),
       host: process.env.HOST,
-      // The `gracePeriodForClose` provides a graceful close for http/https
-      // servers with keep-alive clients. The default value is `Infinity`
-      // (don't force-close). If you want to immediately destroy all sockets
-      // upon stop, set its value to `0`.
-      // See https://www.npmjs.com/package/stoppable
       gracePeriodForClose: 5000, // 5 seconds
       openApiSpec: {
-        // useful when used with OpenAPI-to-GraphQL to locate your application
         setServersFromRequest: true,
       },
+      protocol: 'https',
+      minVersion: 'TLSv1.3',
+      key: key,
+      cert: cert,
+      passphrase: 'pass',
     },
   };
   main(config).catch(err => {
