@@ -1,7 +1,7 @@
 {
   "name": "backplane",
-  "version": "1.0.0",
-  "description": "Backplane API for the i3-Market",
+  "version": "0.0.1",
+  "description": "Backplane API for the i3-Market Project",
   "keywords": [
     "loopback-application",
     "loopback"
@@ -36,7 +36,7 @@
   "repository": {
     "type": "git"
   },
-  "author": "",
+  "author": "Víctor Diví <victor.divi@upc.edu>",
   "license": "",
   "files": [
     "README.md",
@@ -45,22 +45,21 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/boot": "^2.3.5",
-    "@loopback/core": "^2.9.1",
-    "@loopback/openapi-v3": "^3.4.5",
-    "@loopback/repository": "^2.9.0",
-    "@loopback/rest": "^5.2.0",
-    "@loopback/rest-explorer": "^2.2.6",
-    "@loopback/service-proxy": "^2.3.4",
+    "@loopback/boot": "^3.0.1",
+    "@loopback/core": "^2.10.1",
+    "@loopback/repository": "^3.0.1",
+    "@loopback/rest": "^7.0.1",
+    "@loopback/rest-explorer": "^3.0.1",
+    "@loopback/service-proxy": "^3.0.1",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^6.1.0",
+    "@loopback/build": "^6.2.4",
     "source-map-support": "^0.5.19",
-    "@loopback/testlab": "^3.2.0",
-    "@types/node": "^10.17.26",
-    "@loopback/eslint-config": "^8.0.3",
-    "eslint": "^7.3.1",
-    "typescript": "~3.9.5"
+    "@loopback/testlab": "^3.2.6",
+    "@types/node": "^10.17.35",
+    "@loopback/eslint-config": "^10.0.0",
+    "eslint": "^7.9.0",
+    "typescript": "~4.0.2"
   }
 }

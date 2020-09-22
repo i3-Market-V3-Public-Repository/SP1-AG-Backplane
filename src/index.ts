@@ -1,6 +1,6 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
-import * as fs from 'fs';
 import * as https from 'https';
+import * as fs from 'fs';
 
 export * from './application';
 
@@ -17,13 +17,12 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
-  const cert = fs.readFileSync('./certificates/cert.pem');
+  const cert = fs.readFileSync('./certificates/cert.crt');
   const key = fs.readFileSync('./certificates/key.key');
 
-  https.globalAgent.options.ca = fs.readFileSync('../greeter-service/certificates/cert.pem');
+  https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt');
   https.globalAgent.options.cert = cert;
   https.globalAgent.options.key = key;
-  https.globalAgent.options.passphrase = 'pass';
 
   const config = {
     rest: {
@@ -37,7 +36,7 @@ if (require.main === module) {
       minVersion: 'TLSv1.3',
       key: key,
       cert: cert,
-      passphrase: 'pass',
+      ca: fs.readFileSync('./certificates/ca-cert.crt'),
     },
   };
   main(config).catch(err => {
