@@ -1,15 +1,6 @@
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {
-  get,
-  getModelSchemaRef,
-  post,
-  requestBody,
-  RequestWithSession,
-  Response,
-  RestBindings,
-  SchemaObject,
-} from '@loopback/rest';
+import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
@@ -18,6 +9,7 @@ import {createUser, User} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
+import path from "path";
 
 export class NewUserRequest extends User {
   email: string;
@@ -52,6 +44,27 @@ export class AuthController {
   constructor() {
   }
 
+  private addJWTCookie(user: User, response: Response) {
+    const jwtClaims = {
+      sub: user.email,
+      iss: JWT_ISS,
+      aud: JWT_AUD,
+      exp: Math.floor(Date.now() / 1000) + 604800,
+      email: user.email,
+    };
+
+    const token = jwt.sign(jwtClaims, JWT_SECRET);
+
+    response.cookie('jwt', token, JWT_COOKIE_OPTIONS);
+    return token;
+  }
+
+  @get('auth/login')
+  async getLoginPage(@inject(RestBindings.Http.RESPONSE) response: Response,) {
+    response.sendFile(path.join(__dirname, '../../public/login.html'));
+    return response;
+  }
+
   @post('auth/login', {
     responses: {
       '200': {
@@ -76,19 +89,8 @@ export class AuthController {
     @requestBody(CredentialsRequestBody) user: User,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    const jwtClaims = {
-      sub: user.email,
-      iss: JWT_ISS,
-      aud: JWT_AUD,
-      exp: Math.floor(Date.now() / 1000) + 604800, // 1 weak (7×24×60×60=604800s) from now
-      email: user.email,
-    };
-
-    const token = jwt.sign(jwtClaims, JWT_SECRET);
-
-    response.cookie('jwt', token, JWT_COOKIE_OPTIONS);
     // TODO remove token return
-    return token;
+    return this.addJWTCookie(user, response);
   }
 
   @authenticate(JWT_STRATEGY_NAME)
@@ -159,13 +161,13 @@ export class AuthController {
     return response;
   }
 
+  @authenticate(OPENID_STRATEGY_NAME)
   @get('/auth/openid/callback')
   async openIdConnectCallback(
-    @inject(SecurityBindings.USER) user: UserProfile,
-    @inject(RestBindings.Http.REQUEST) request: RequestWithSession,
+    @inject(AuthenticationBindings.CURRENT_USER) user: UserProfile,
+    @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    console.log('callback');
-    return response;
+    return this.addJWTCookie(user as User, response);
   }
 }

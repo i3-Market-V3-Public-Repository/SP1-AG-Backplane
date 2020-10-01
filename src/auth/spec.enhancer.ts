@@ -5,14 +5,25 @@ import {asSpecEnhancer, mergeSecuritySchemeToSpec, OASEnhancer, OpenApiSpec} fro
  * A spec enhancer to add OpenAPI info spec
  */
 @injectable(asSpecEnhancer)
-export class AuthSpecEnhancer implements OASEnhancer {
-  // give your enhancer a proper name
-  name = 'info';
+export class LocalSpecEnhancer implements OASEnhancer {
+  name = 'local';
 
-  // takes in the current spec, modifies it, and returns a new one
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
     return mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    });
+  }
+}
+@injectable(asSpecEnhancer)
+export class JWTSpecEnhancer implements OASEnhancer {
+  name = 'jwtCookie';
+
+  modifySpec(spec: OpenApiSpec): OpenApiSpec {
+    return mergeSecuritySchemeToSpec(spec, this.name, {
+      type: 'http',
+      in: 'cookie',
       scheme: 'bearer',
       bearerFormat: 'JWT',
     });

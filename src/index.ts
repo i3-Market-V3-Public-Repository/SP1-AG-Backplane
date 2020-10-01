@@ -1,12 +1,10 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
 import * as https from 'https';
 import * as fs from 'fs';
-import {createStrategy} from './auth/open-id-connect.strategy';
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
-  await createStrategy();
   const app = new BackplaneApplication(options);
   await app.boot();
   await app.start();
