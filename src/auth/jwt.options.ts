@@ -1,7 +1,7 @@
 import {BindingKey} from '@loopback/core';
 
 export interface AuthenticationStrategyOptions {
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 export namespace JWTAuthenticationStrategyBindings {

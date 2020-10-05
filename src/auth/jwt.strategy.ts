@@ -4,7 +4,11 @@ import {findByEmail} from './users';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 import {JWT_SECRET} from './jwt.options';
 
-function verify(payload: any, done: VerifiedCallback) {
+interface Payload {
+  sub: string;
+}
+
+function verify(payload: Payload, done: VerifiedCallback) {
   const user = findByEmail(payload.sub);
   if (user) {
     console.log(`jwt for user ${payload.sub} verified and the user is in the db`);

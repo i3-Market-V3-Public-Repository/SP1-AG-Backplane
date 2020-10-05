@@ -5,7 +5,7 @@ import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
-import {createUser, User} from '../auth/users';
+import {createUser, setUserPassword, User} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
@@ -37,6 +37,18 @@ export const CredentialsRequestBody = {
   required: true,
   content: {
     'application/json': {schema: CredentialsSchema},
+  },
+};
+
+const passwordSchema = {
+  type: 'object',
+  required: ['password'],
+  properties: {
+    password: {
+      type: 'string',
+      example: 'password',
+      minLength: 8,
+    },
   },
 };
 
@@ -138,6 +150,35 @@ export class AuthController {
     const password = await hash(newUserRequest.password, await genSalt());
     const user = createUser(newUserRequest.email, password);
     return user.email;
+  }
+
+  @authenticate(JWT_STRATEGY_NAME)
+  @post('auth/setPassword', {
+    responses: {
+      '200': {
+        description: 'Password',
+        content: {
+          'application/json': {
+            schema: passwordSchema,
+          },
+        },
+      },
+    },
+  })
+  async setPassword(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: passwordSchema,
+        },
+      },
+    })
+      newPassword: {password: string},
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: User,
+  ): Promise<string> {
+    const password = await hash(newPassword.password, await genSalt());
+    setUserPassword(currentUser.email, password);
+    return currentUser.email;
   }
 
 

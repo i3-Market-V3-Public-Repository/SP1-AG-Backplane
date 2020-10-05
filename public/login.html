@@ -3,22 +3,41 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>i3-Market Login</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-div {
+            display: flex;
+            justify-content: space-between;
+            margin: 1em 0;
+        }
+
+        .form-submit {
+            display: flex;
+            justify-content: center;
+            margin: 1em 0;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>My custom intranet</h1>
-    <p>Please login to proceed</p>
+    <h1>i3-Market Backplane Login</h1>
     <form action="/auth/login" method="post">
-        <div>
-            <label>Email:</label>
-            <input type="text" name="email" />
+        <div class="form-div">
+            <label for="email">Email:</label>
+            <input type="text" name="email" id="email"/>
         </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password" />
+        <div class="form-div">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password"/>
         </div>
-        <div>
+        <div class="form-submit">
             <input type="submit" value="Log In" />
         </div>
     </form>
