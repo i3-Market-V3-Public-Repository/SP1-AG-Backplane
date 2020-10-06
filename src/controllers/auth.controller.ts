@@ -1,7 +1,7 @@
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} from '@loopback/rest';
-import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
@@ -9,7 +9,7 @@ import {createUser, setUserPassword, User} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
-import path from "path";
+import path from 'path';
 
 export class NewUserRequest extends User {
   email: string;
@@ -75,10 +75,10 @@ export class AuthController {
     responses: {
       '200': {
         description: 'Login page',
-      }
-    }
+      },
+    },
   })
-  async getLoginPage(@inject(RestBindings.Http.RESPONSE) response: Response,) {
+  async getLoginPage(@inject(RestBindings.Http.RESPONSE) response: Response) {
     response.sendFile(path.join(__dirname, '../../public/login.html'));
     return response;
   }
@@ -116,10 +116,10 @@ export class AuthController {
     },
   })
   async whoAmI(
-    @inject(SecurityBindings.USER)
+    @inject(AuthenticationBindings.CURRENT_USER)
       currentUserProfile: UserProfile,
-  ): Promise<string> {
-    return currentUserProfile[securityId];
+  ): Promise<UserProfile> {
+    return currentUserProfile;
   }
 
   @post('auth/signup', {
