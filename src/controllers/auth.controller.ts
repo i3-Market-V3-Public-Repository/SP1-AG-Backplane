@@ -1,11 +1,10 @@
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} from '@loopback/rest';
-import {UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
-import {createUser, setUserPassword, User} from '../auth/users';
+import {createUser, setUserPassword, User, BackplaneUserProfile} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
@@ -55,6 +54,7 @@ export class AuthController {
       aud: JWT_AUD,
       exp: Math.floor(Date.now() / 1000) + 604800,
       email: user.email,
+      scopes: user.scopes,
     };
 
     const token = jwt.sign(jwtClaims, JWT_SECRET);
@@ -89,7 +89,7 @@ export class AuthController {
   })
   @authenticate(LOCAL_STRATEGY_NAME)
   async login(
-    @inject(AuthenticationBindings.CURRENT_USER) user: UserProfile,
+    @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     // TODO remove token return
@@ -109,8 +109,8 @@ export class AuthController {
   })
   async whoAmI(
     @inject(AuthenticationBindings.CURRENT_USER)
-      currentUserProfile: UserProfile,
-  ): Promise<UserProfile> {
+      currentUserProfile: BackplaneUserProfile,
+  ): Promise<BackplaneUserProfile> {
     return currentUserProfile;
   }
 
@@ -196,7 +196,7 @@ export class AuthController {
   @authenticate(OPENID_STRATEGY_NAME)
   @get('/auth/openid/callback')
   async openIdConnectCallback(
-    @inject(AuthenticationBindings.CURRENT_USER) user: UserProfile,
+    @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {

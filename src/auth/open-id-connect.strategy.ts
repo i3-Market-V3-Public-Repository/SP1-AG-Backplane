@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {createUser, findByEmail} from './users';
+import {BackplaneUserProfile, createUser, findByEmail} from './users';
 import {asAuthStrategy, AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
@@ -54,7 +54,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
       if (!user) {
         user = createUser(email);
       }
-      return user as UserProfile;
+      return user as BackplaneUserProfile;
     }
   }
 

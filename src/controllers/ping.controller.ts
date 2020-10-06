@@ -2,6 +2,7 @@ import {Request, RestBindings, get, ResponseObject} from '@loopback/rest';
 import {inject} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
+import {authorize} from '@loopback/authorization';
 
 /**
  * OpenAPI response for ping()
@@ -45,6 +46,7 @@ export class PingController {
     },
   })
   @authenticate({strategy: JWT_STRATEGY_NAME, options: {session: false, failureRedirect: '/login'}})
+  @authorize({scopes: ['ping']})
   ping(): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {

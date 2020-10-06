@@ -18,6 +18,13 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import {JWTSpecEnhancer, LocalSpecEnhancer} from './auth/spec.enhancer';
 import {OpenIdConnectAuthenticationStrategy} from './auth/open-id-connect.strategy';
+import {
+  AuthorizationBindings,
+  AuthorizationComponent,
+  AuthorizationDecision,
+  AuthorizationOptions, AuthorizationTags,
+} from '@loopback/authorization';
+import {AuthorizationProvider} from './auth/authorizator.provider';
 
 export {ApplicationConfig};
 
@@ -63,6 +70,20 @@ export class BackplaneApplication extends BootMixin(
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       });
     registerAuthenticationStrategy(this, OpenIdConnectAuthenticationStrategy);
+
+    const authorizationOptions: AuthorizationOptions = {
+      precedence: AuthorizationDecision.DENY,
+      defaultDecision: AuthorizationDecision.DENY,
+    };
+
+    this.configure(AuthorizationBindings.COMPONENT).to(authorizationOptions);
+    this.component(AuthorizationComponent);
+
+    this.bind('authorizationProviders.authorization-provider')
+      .toProvider(AuthorizationProvider)
+      .tag(AuthorizationTags.AUTHORIZER);
+
+
     this.projectRoot = __dirname;
     this.bootOptions = {
       controllers: {
