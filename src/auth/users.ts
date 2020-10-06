@@ -8,7 +8,7 @@ const users: Map<string, User> = new Map();
 export function findByEmail(email: string): User | undefined {
   console.log(`Looking for user ${email}`);
   const user = users.get(email);
-  return user ? Object.create(user) : undefined
+  return user ? Object.assign({}, user) : undefined
 }
 
 export function createUser(email: string, password?: string): User {

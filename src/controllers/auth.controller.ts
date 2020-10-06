@@ -71,7 +71,13 @@ export class AuthController {
     return token;
   }
 
-  @get('auth/login')
+  @get('auth/login', {
+    responses: {
+      '200': {
+        description: 'Login page',
+      }
+    }
+  })
   async getLoginPage(@inject(RestBindings.Http.RESPONSE) response: Response,) {
     response.sendFile(path.join(__dirname, '../../public/login.html'));
     return response;
@@ -80,17 +86,10 @@ export class AuthController {
   @post('auth/login', {
     responses: {
       '200': {
-        description: 'Token',
+        description: 'Credentials',
         content: {
           'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                token: {
-                  type: 'string',
-                },
-              },
-            },
+            schema: CredentialsSchema,
           },
         },
       },
@@ -98,11 +97,11 @@ export class AuthController {
   })
   @authenticate(LOCAL_STRATEGY_NAME)
   async login(
-    @requestBody(CredentialsRequestBody) user: User,
+    @inject(AuthenticationBindings.CURRENT_USER) user: UserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     // TODO remove token return
-    return this.addJWTCookie(user, response);
+    return this.addJWTCookie(user as User, response);
   }
 
   @authenticate(JWT_STRATEGY_NAME)

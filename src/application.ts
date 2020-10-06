@@ -42,6 +42,7 @@ export class BackplaneApplication extends BootMixin(
     this.component(RestExplorerComponent);
 
     this.expressMiddleware(express.json);
+    this.expressMiddleware(express.urlencoded);
     this.expressMiddleware(cookieParser);
 
     // AUTH
