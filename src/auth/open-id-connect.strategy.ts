@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BackplaneUserProfile, createUser, findByEmail} from './users';
+import {BackplaneUserProfile, createUser, findByEmail, updateUser} from './users';
 import {asAuthStrategy, AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
@@ -26,7 +26,7 @@ const TOKEN_ENDPOINT = BASE_URL + '/auth/realms/i3-Market/protocol/openid-connec
 const CLIENT_ID = 'Backplane';
 const REDIRECT_URI = 'https://localhost:3000/auth/openid/callback';
 const RESPONSE_TYPE = 'code';
-const SCOPE = 'openid';
+const SCOPE = 'openid roles';
 
 const REDIRECT_URL = `${AUTHORIZATION_ENDPOINT}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
 
@@ -46,21 +46,27 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
       const authCode = this.extractAuthCode(request);
       if (!authCode) return undefined;
       const tokens = await this.getToken(authCode);
-      const email = this.extractEmail(tokens.id_token);
-      if (!email) {
+      const data = this.extractData(tokens.access_token);
+      if (!data.email) {
         return undefined;
       }
-      let user = findByEmail(email);
+      let user = findByEmail(data.email);
       if (!user) {
-        user = createUser(email);
+        user = createUser(data.email, undefined, data.scopes);
       }
+      // else {
+      //   user = updateUser(data.email, data.scopes ?? []);
+      // }
       return user as BackplaneUserProfile;
     }
   }
 
-  extractEmail(token: string): string | undefined {
+  extractData(token: string): {email?: string, scopes?: string[]} {
     const decoded = decode(token) as {[key: string]: unknown};
-    return decoded?.['email'] as string;
+    return {
+      email: decoded?.['email'] as string,
+      scopes: (decoded?.['realm_access'] as {[key: string]: unknown})?.['roles'] as string[],
+    };
   }
 
 

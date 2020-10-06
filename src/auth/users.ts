@@ -29,7 +29,17 @@ export function createUser(email: string, password?: string, scopes: string[] = 
     scopes: scopes,
   };
   users.set(email, user);
-  return Object.create(user);
+  return Object.assign({}, user);
+}
+
+export function updateUser(email: string, scopes: string[]): User {
+  const user = users.get(email);
+  if (!user) {
+    throw Error('User does not exists');
+  }
+  user.scopes = scopes;
+  return Object.assign({}, user);
+
 }
 
 export function setUserPassword(email: string, password: string): User {
@@ -38,5 +48,5 @@ export function setUserPassword(email: string, password: string): User {
     throw Error('User does not exists');
   }
   user.password = password;
-  return Object.create(user);
+  return Object.assign({}, user);
 }
