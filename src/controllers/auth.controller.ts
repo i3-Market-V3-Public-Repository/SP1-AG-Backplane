@@ -32,14 +32,6 @@ const CredentialsSchema: SchemaObject = {
   },
 };
 
-export const CredentialsRequestBody = {
-  description: 'The input of login function',
-  required: true,
-  content: {
-    'application/json': {schema: CredentialsSchema},
-  },
-};
-
 const passwordSchema = {
   type: 'object',
   required: ['password'],
