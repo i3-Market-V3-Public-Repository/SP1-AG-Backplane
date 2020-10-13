@@ -1,6 +1,7 @@
 import {Model, model, property} from '@loopback/repository';
 
 @model({
+  name: 'NewUserRequest',
   jsonSchema: {
     title: 'New user request',
   },

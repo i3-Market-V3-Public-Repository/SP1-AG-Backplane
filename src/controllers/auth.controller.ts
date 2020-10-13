@@ -2,8 +2,8 @@ import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} from '@loopback/rest';
 import {genSalt, hash} from 'bcryptjs';
-import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
-import {OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
+import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
+import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
 import {BackplaneUserProfile, createUser, setUserPassword} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
@@ -65,6 +65,7 @@ export class AuthController {
   }
 
   @get('auth/login', {
+    description: 'Login page of the Backplane',
     responses: {
       '200': {
         description: 'Login page',
@@ -77,6 +78,14 @@ export class AuthController {
   }
 
   @post('auth/login', {
+    description: 'Endpoint to log in to the Backplane with username and password',
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {$ref: '#/components/schemas/NewUserRequest'},
+        },
+      },
+    },
     responses: {
       '204': {
         description: 'No content',
@@ -94,6 +103,10 @@ export class AuthController {
 
   @authenticate(JWT_STRATEGY_NAME)
   @get('auth/whoAmI', {
+    description: 'Endpoint to get the user profile of the logged in user',
+    security: [
+      JWT_SECURITY_SCHEMA,
+    ],
     responses: {
       '200': {
         description: 'User profile',
@@ -113,6 +126,7 @@ export class AuthController {
   }
 
   @post('auth/signup', {
+    description: 'Endpoint to register a new user',
     responses: {
       '200': {
         description: 'UserResponse',
@@ -132,7 +146,7 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: NewUserRequest,
+          schema: {$ref: '#/components/schemas/NewUserRequest'},
         },
       },
     })
@@ -145,6 +159,10 @@ export class AuthController {
 
   @authenticate(JWT_STRATEGY_NAME)
   @post('auth/setPassword', {
+    description: 'Endpoint to set/change the password of the current user',
+    security: [
+      JWT_SECURITY_SCHEMA,
+    ],
     responses: {
       '200': {
         description: 'Password',
@@ -183,6 +201,10 @@ export class AuthController {
 
   @authenticate(OPENID_STRATEGY_NAME)
   @get('/auth/openid/login', {
+    description: 'Endpoint to start the authentication with an external OpenId Provider',
+    security: [
+      OPENID_SECURITY_SCHEMA,
+    ],
     responses: {
       '302': {
         description: 'Redirection to OpenId Provider login page',
@@ -205,6 +227,10 @@ export class AuthController {
 
   @authenticate(OPENID_STRATEGY_NAME)
   @get('/auth/openid/callback', {
+    description: 'Callback for the OpenId Provider to call after login',
+    security: [
+      OPENID_SECURITY_SCHEMA,
+    ],
     responses: {
       '204': {
         description: 'No content',

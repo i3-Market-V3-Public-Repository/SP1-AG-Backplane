@@ -1,7 +1,7 @@
 import {Request, RestBindings, get, ResponseObject} from '@loopback/rest';
 import {inject} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
-import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
+import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {authorize} from '@loopback/authorization';
 
 /**
@@ -41,6 +41,8 @@ export class PingController {
 
   // Map to `GET /ping`
   @get('/ping', {
+    description: 'Endpoint that returns a greeting along with some info of the request',
+    security: [JWT_SECURITY_SCHEMA],
     responses: {
       '200': PING_RESPONSE,
     },

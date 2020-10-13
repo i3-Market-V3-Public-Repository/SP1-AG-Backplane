@@ -11,12 +11,11 @@ import {
   AuthenticationComponent,
   registerAuthenticationStrategy,
 } from '@loopback/authentication';
-import {jwtAuthStrategy} from './auth/jwt.strategy';
+import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
 import {JWT_DEFAULT_OPTIONS, JWTAuthenticationStrategyBindings} from './auth/jwt.options';
 import {localAuthStrategy} from './auth/local.strategy';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import {JWTSpecEnhancer, LocalSpecEnhancer} from './auth/spec.enhancer';
 import {OpenIdConnectAuthenticationStrategy} from './auth/open-id-connect.strategy';
 import {
   AuthorizationBindings,
@@ -33,7 +32,6 @@ export class BackplaneApplication extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
-    this.add(createBindingFromClass(LocalSpecEnhancer));
     this.add(createBindingFromClass(JWTSpecEnhancer));
 
     // Set up the custom sequence

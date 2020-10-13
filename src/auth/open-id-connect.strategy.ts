@@ -13,7 +13,8 @@ import {injectable} from '@loopback/core';
 import {default as axios} from 'axios';
 import {decode} from 'jsonwebtoken';
 
-export const OPENID_STRATEGY_NAME = 'open-id';
+export const OPENID_STRATEGY_NAME = 'openId';
+export const OPENID_SECURITY_SCHEMA = {openId: []};
 
 const BASE_URL = 'https://localhost:8080';
 const AUTHORIZATION_ENDPOINT = BASE_URL + '/auth/realms/i3-Market/protocol/openid-connect/auth';
