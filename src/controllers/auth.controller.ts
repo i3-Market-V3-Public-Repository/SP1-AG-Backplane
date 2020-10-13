@@ -32,16 +32,16 @@ const UserProfileSchema: SchemaObject = {
     email: {
       type: 'string',
       format: 'email',
-      example: 'email@example.com'
+      example: 'email@example.com',
     },
     scopes: {
       type: 'array',
       items: {
         type: 'string',
         example: 'ping',
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 export class AuthController {
@@ -88,8 +88,8 @@ export class AuthController {
     @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    // TODO: Remove token return and set response to 204
-    return this.addJWTCookie(user, response);
+    this.addJWTCookie(user, response);
+    response.statusCode = 204;
   }
 
   @authenticate(JWT_STRATEGY_NAME)
@@ -121,7 +121,7 @@ export class AuthController {
             schema: {
               type: 'string',
               title: 'Email',
-              example: 'email@example.com'
+              example: 'email@example.com',
             },
           },
         },
@@ -153,7 +153,7 @@ export class AuthController {
             schema: {
               type: 'string',
               title: 'Email',
-              example: 'email@example.com'
+              example: 'email@example.com',
             },
           },
         },
@@ -185,9 +185,9 @@ export class AuthController {
   @get('/auth/openid/login', {
     responses: {
       '302': {
-        description: 'Redirection to OpenId Provider login page'
-      }
-    }
+        description: 'Redirection to OpenId Provider login page',
+      },
+    },
   })
   loginWitOpenIdConnectProvider(
     @inject(AuthenticationBindings.AUTHENTICATION_REDIRECT_URL)
@@ -209,14 +209,14 @@ export class AuthController {
       '204': {
         description: 'No content',
       },
-    }
+    },
   })
   async openIdConnectCallback(
     @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    // TODO: Remove token return and set response to 204
-    return this.addJWTCookie(user, response);
+    response.statusCode = 204;
+    this.addJWTCookie(user, response);
   }
 }
