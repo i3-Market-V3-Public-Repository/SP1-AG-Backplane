@@ -4,35 +4,16 @@ import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} f
 import {genSalt, hash} from 'bcryptjs';
 import {JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
-import {createUser, setUserPassword, User, BackplaneUserProfile} from '../auth/users';
+import {BackplaneUserProfile, createUser, setUserPassword} from '../auth/users';
 import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
 import path from 'path';
+import {NewUserRequest} from '../models';
 
-export class NewUserRequest extends User {
-  email: string;
-  password: string;
-}
-
-const CredentialsSchema: SchemaObject = {
+const PasswordSchema: SchemaObject = {
   type: 'object',
-  required: ['email', 'password'],
-  properties: {
-    email: {
-      type: 'string',
-      format: 'email',
-    },
-    password: {
-      type: 'string',
-      example: 'password',
-      minLength: 8,
-    },
-  },
-};
-
-const passwordSchema = {
-  type: 'object',
+  title: 'Password',
   required: ['password'],
   properties: {
     password: {
@@ -43,11 +24,31 @@ const passwordSchema = {
   },
 };
 
+
+const UserProfileSchema: SchemaObject = {
+  type: 'object',
+  title: 'User profile',
+  properties: {
+    email: {
+      type: 'string',
+      format: 'email',
+      example: 'email@example.com'
+    },
+    scopes: {
+      type: 'array',
+      items: {
+        type: 'string',
+        example: 'ping',
+      }
+    }
+  }
+};
+
 export class AuthController {
   constructor() {
   }
 
-  private addJWTCookie(user: User, response: Response) {
+  private addJWTCookie(user: BackplaneUserProfile, response: Response) {
     const jwtClaims = {
       sub: user.email,
       iss: JWT_ISS,
@@ -77,13 +78,8 @@ export class AuthController {
 
   @post('auth/login', {
     responses: {
-      '200': {
-        description: 'Credentials',
-        content: {
-          'application/json': {
-            schema: CredentialsSchema,
-          },
-        },
+      '204': {
+        description: 'No content',
       },
     },
   })
@@ -92,17 +88,19 @@ export class AuthController {
     @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    // TODO remove token return
-    return this.addJWTCookie(user as User, response);
+    // TODO: Remove token return and set response to 204
+    return this.addJWTCookie(user, response);
   }
 
   @authenticate(JWT_STRATEGY_NAME)
   @get('auth/whoAmI', {
     responses: {
       '200': {
-        description: '',
-        schema: {
-          type: 'string',
+        description: 'User profile',
+        content: {
+          'application/json': {
+            schema: UserProfileSchema,
+          },
         },
       },
     },
@@ -117,11 +115,13 @@ export class AuthController {
   @post('auth/signup', {
     responses: {
       '200': {
-        description: 'User',
+        description: 'UserResponse',
         content: {
           'application/json': {
             schema: {
-              'x-ts-type': User,
+              type: 'string',
+              title: 'Email',
+              example: 'email@example.com'
             },
           },
         },
@@ -132,7 +132,7 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: CredentialsSchema,
+          schema: NewUserRequest,
         },
       },
     })
@@ -150,7 +150,11 @@ export class AuthController {
         description: 'Password',
         content: {
           'application/json': {
-            schema: passwordSchema,
+            schema: {
+              type: 'string',
+              title: 'Email',
+              example: 'email@example.com'
+            },
           },
         },
       },
@@ -160,12 +164,12 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: passwordSchema,
+          schema: PasswordSchema,
         },
       },
     })
       newPassword: {password: string},
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: User,
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: BackplaneUserProfile,
   ): Promise<string> {
     const password = await hash(newPassword.password, await genSalt());
     setUserPassword(currentUser.email, password);
@@ -178,7 +182,13 @@ export class AuthController {
   // --------------------------------------------------------------------------------------
 
   @authenticate(OPENID_STRATEGY_NAME)
-  @get('/auth/openid/login')
+  @get('/auth/openid/login', {
+    responses: {
+      '302': {
+        description: 'Redirection to OpenId Provider login page'
+      }
+    }
+  })
   loginWitOpenIdConnectProvider(
     @inject(AuthenticationBindings.AUTHENTICATION_REDIRECT_URL)
       redirectUrl: string,
@@ -194,12 +204,19 @@ export class AuthController {
   }
 
   @authenticate(OPENID_STRATEGY_NAME)
-  @get('/auth/openid/callback')
+  @get('/auth/openid/callback', {
+    responses: {
+      '204': {
+        description: 'No content',
+      },
+    }
+  })
   async openIdConnectCallback(
     @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    return this.addJWTCookie(user as User, response);
+    // TODO: Remove token return and set response to 204
+    return this.addJWTCookie(user, response);
   }
 }

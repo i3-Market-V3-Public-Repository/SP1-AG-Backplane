@@ -1,9 +1,6 @@
 import {injectable} from '@loopback/core';
 import {asSpecEnhancer, mergeSecuritySchemeToSpec, OASEnhancer, OpenApiSpec} from '@loopback/rest';
 
-/**
- * A spec enhancer to add OpenAPI info spec
- */
 @injectable(asSpecEnhancer)
 export class LocalSpecEnhancer implements OASEnhancer {
   name = 'local';
@@ -22,10 +19,9 @@ export class JWTSpecEnhancer implements OASEnhancer {
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
     return mergeSecuritySchemeToSpec(spec, this.name, {
-      type: 'http',
+      type: 'apiKey',
       in: 'cookie',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
+      name: 'jwt',
     });
   }
 }

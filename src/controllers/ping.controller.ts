@@ -45,7 +45,7 @@ export class PingController {
       '200': PING_RESPONSE,
     },
   })
-  @authenticate({strategy: JWT_STRATEGY_NAME, options: {session: false, failureRedirect: '/login'}})
+  @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['ping']})
   ping(): object {
     // Reply with a greeting, the current time, the url, and request headers

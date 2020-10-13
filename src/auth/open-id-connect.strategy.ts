@@ -1,9 +1,4 @@
-// Copyright IBM Corp. 2019,2020. All Rights Reserved.
-// Node module: @loopback/authentication
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
-import {BackplaneUserProfile, createUser, findByEmail, updateUser} from './users';
+import {BackplaneUserProfile, createUser, findByEmail} from './users';
 import {asAuthStrategy, AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
@@ -57,7 +52,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
       // else {
       //   user = updateUser(data.email, data.scopes ?? []);
       // }
-      return user as BackplaneUserProfile;
+      return {email: user.email, scopes: user.scopes} as BackplaneUserProfile;
     }
   }
 

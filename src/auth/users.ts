@@ -1,12 +1,8 @@
 import {UserProfile} from '@loopback/security';
-
-export class User {
-  email: string;
-  password?: string;
-  scopes: string[] = [];
-}
+import {User} from '../models';
 
 export interface BackplaneUserProfile extends UserProfile {
+  email: string;
   scopes: string[];
 }
 
@@ -23,11 +19,11 @@ export function createUser(email: string, password?: string, scopes: string[] = 
     throw Error('User already exists');
   }
   console.log(`Create user ${email}`);
-  const user: User = {
+  const user = new User({
     email: email,
     password: password,
     scopes: scopes,
-  };
+  });
   users.set(email, user);
   return Object.assign({}, user);
 }
