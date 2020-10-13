@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>i3-Market Login</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-div {
+            display: flex;
+            justify-content: space-between;
+            margin: 1em 0;
+        }
+
+        .form-submit {
+            display: flex;
+            justify-content: center;
+            margin: 1em 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>i3-Market Backplane Login</h1>
+    <form action="/auth/login" method="post">
+        <div class="form-div">
+            <label for="email">Email:</label>
+            <input type="text" name="email" id="email"/>
+        </div>
+        <div class="form-div">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password"/>
+        </div>
+        <div class="form-submit">
+            <input type="submit" value="Log In" />
+        </div>
+    </form>
+    <a href="/auth/openid/login">Login with KeyCloak</a>
+</body>
+
+</html>
