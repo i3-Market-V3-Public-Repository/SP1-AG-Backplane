@@ -1,79 +1,48 @@
 # i3-Market Backplane API
 
-This application is generated using [LoopBack 4 CLI](https://loopback.io/doc/en/lb4/Command-line-interface.html) with the
-[initial project layout](https://loopback.io/doc/en/lb4/Loopback-application-layout.html).
+## Setup
 
-## Install dependencies
+Clone the repository, and download the dependencies:
 
-By default, dependencies were installed when this application was generated.
-Whenever dependencies in `package.json` are changed, run the following command:
-
-```sh
+```shell script
+git clone git@gitlab.com:i3-market/code/wp4/backplane.git
+cd backplane
 npm install
 ```
 
-To only install resolved dependencies in `package-lock.json`:
+### Enable HTTPS
 
-```sh
-npm ci
+To enable HTTPS during development, you need to generate a TLS certificate. There are two options available.
+
+#### Obtain certificates from i3-Market dummy CA
+
+A dummy Certificate Authority has been created to generate TLS certificates.
+
+This CA can be found at [Gitlab](https://gitlab.com/i3-market/code/wp4/certificate-authority). 
+To use it, follow the instructions found in the CA README.
+
+Put the generated certificates at the [certificates folder](./certificates), 
+with the names `cert.crt` and `key.key` for the certificate and key respectively.
+
+#### Generate self-signed certificates
+
+The second option is to generate a self-signed certificate using [openSSL](https://www.openssl.org/).
+
+The following line will create a private key and certificate pair and put them in a folder called `certificates`. 
+This folder is already included in the [.gitignore](.gitignore), so they won't be uploaded to the git repository.
+The command will ask for several pieces of information, all can be skipped, but for [Mutual TLS](#enable-mutual-tls) to work, 
+enter `localhost` as the `Common Name (CN)`:
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout ./certificates/key.key -out ./certificates/cert.crt
 ```
 
-## Run the application
 
-```sh
+## Run the Backplane
+
+From the project root directory, run the following command:
+```shell script
 npm start
 ```
 
-You can also run `node .` to skip the build step.
-
-Open http://127.0.0.1:3000 in your browser.
-
-## Rebuild the project
-
-To incrementally build the project:
-
-```
-npm run build
-```
-
-To force a full build by cleaning up cached artifacts:
-
-```
-npm run clean
-npm run build
-```
-
-## Fix code style and formatting issues
-
-If `eslint` and `prettier` are enabled for this project, you can use the
-following commands to check code style and formatting issues.
-
-```sh
-npm run lint
-```
-
-To automatically fix such issues:
-
-```sh
-npm run lint:fix
-```
-
-## Other useful commands
-
-- `npm run migrate`: Migrate database schemas for models
-- `npm run openapi-spec`: Generate OpenAPI spec into a file
-- `npm run docker:build`: Build a Docker image for this application
-- `npm run docker:run`: Run this application inside a Docker container
-
-## Tests
-
-```sh
-npm test
-```
-
-## What's next
-
-Please check out [LoopBack 4 documentation](https://loopback.io/doc/en/lb4/) to
-understand how you can continue to add features to this application.
-
-[![LoopBack](<https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png>)](http://loopback.io/)
+The Backplane will start listening on port `3000`.
