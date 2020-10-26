@@ -77,3 +77,24 @@ const CALLBACK_URI = 'https://localhost:3000/auth/openid/callback';
 const RESPONSE_TYPE = 'code';
 const SCOPE = 'openid roles'; // <-- to add roles
 ```
+
+
+## Keycloak
+
+To use Keycloak as an OpenId Connect Provider, you can run it using docker:
+```shell script
+docker run -p 8080:8443 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -v D:\USUARIS\victor.divi\Development\i3Market\keycloak\keycloak.crt:/etc/x509/https/tls.crt -v D:\USUARIS\victor.divi\Development\i3Market\keycloak\keycloak.key:/etc/x509/https/tls.key -e KEYCLOAK_IMPORT=/tmp/example-realm.json -v D:\USUARIS\victor.divi\Development\i3Market\keycloak\i3-market-realm.json:/tmp/example-realm.json jboss/keycloak
+```
+Parts:
+```shell script
+docker run -p 8080:8443 
+  -e KEYCLOAK_USER=admin                                      // Adds 'admin' as user
+  -e KEYCLOAK_PASSWORD=admin                                  // Adds 'admin' as user password
+  -e KEYCLOAK_IMPORT=/tmp/example-realm.json                  // Imports 'i3-Market' realm
+  -v .\keycloak\keycloak.crt:/etc/x509/https/tls.crt          // Adds TLS certificate
+  -v .\keycloak\keycloak.key:/etc/x509/https/tls.key          // Adds TLS key
+  -v .\keycloak\i3-market-realm.json:/tmp/example-realm.json  // Adds 'i3-Market' realm file
+  jboss/keycloak    
+```
+
+The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
