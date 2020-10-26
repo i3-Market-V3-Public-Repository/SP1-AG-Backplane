@@ -1,5 +1,5 @@
 import {BackplaneUserProfile, createUser, findByEmail} from './users';
-import {asAuthStrategy, AuthenticationStrategy} from '@loopback/authentication';
+import {AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
   asSpecEnhancer,
@@ -9,7 +9,7 @@ import {
   RedirectRoute,
   Request,
 } from '@loopback/rest';
-import {injectable, Provider, inject} from '@loopback/core';
+import {inject, injectable, Provider} from '@loopback/core';
 import {default as axios} from 'axios';
 import {decode} from 'jsonwebtoken';
 
@@ -23,8 +23,7 @@ const RESPONSE_TYPE = 'code';
 const SCOPE = 'openid roles';
 
 
-@injectable(asAuthStrategy, asSpecEnhancer)
-export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy, OASEnhancer {
+export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
 
   constructor(
@@ -77,12 +76,6 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     return undefined;
   }
 
-  modifySpec(spec: OpenApiSpec): OpenApiSpec {
-    return mergeSecuritySchemeToSpec(spec, this.name, {
-      type: 'openIdConnect',
-    });
-  }
-
   private async getToken(authCode: string) {
     const tokenData = `code=${authCode}&grant_type=authorization_code&redirect_uri=${this.callbackUri}&client_id=${this.clientId}`;
     const tokenResponse = await axios.post(this.tokenEndpoint, tokenData, {
@@ -101,5 +94,16 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
     const response = await axios.get(this.wellKnownURL);
     const redirectUrl = `${response.data['authorization_endpoint']}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${CALLBACK_URI}`;
     return new OpenIdConnectAuthenticationStrategy('Backplane', response.data['token_endpoint'], redirectUrl, CALLBACK_URI);
+  }
+}
+
+@injectable(asSpecEnhancer)
+export class OpenIdSpecEnhancer implements OASEnhancer {
+  name = OPENID_STRATEGY_NAME;
+
+  modifySpec(spec: OpenApiSpec): OpenApiSpec {
+    return mergeSecuritySchemeToSpec(spec, this.name, {
+      type: 'openIdConnect',
+    });
   }
 }

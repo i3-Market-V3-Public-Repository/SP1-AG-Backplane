@@ -15,7 +15,7 @@ import {JWT_DEFAULT_OPTIONS, JWTAuthenticationStrategyBindings} from './auth/jwt
 import {localAuthStrategy} from './auth/local.strategy';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import {OpenIdConnectProvider} from './auth/open-id-connect.strategy';
+import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
 import {
   AuthorizationBindings,
   AuthorizationComponent,
@@ -32,6 +32,7 @@ export class BackplaneApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
     this.add(createBindingFromClass(JWTSpecEnhancer));
+    this.add(createBindingFromClass(OpenIdSpecEnhancer));
 
     // Set up the custom sequence
     this.sequence(MySequence);
