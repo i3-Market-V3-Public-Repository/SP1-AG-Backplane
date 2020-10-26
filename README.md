@@ -30,7 +30,7 @@ The second option is to generate a self-signed certificate using [openSSL](https
 
 The following line will create a private key and certificate pair and put them in a folder called `certificates`. 
 This folder is already included in the [.gitignore](.gitignore), so they won't be uploaded to the git repository.
-The command will ask for several pieces of information, all can be skipped, but for [Mutual TLS](#enable-mutual-tls) to work, 
+The command will ask for several pieces of information, all can be skipped, but for Mutual TLS to work, 
 enter `localhost` as the `Common Name (CN)`:
 
 ```bash
@@ -46,3 +46,34 @@ npm start
 ```
 
 The Backplane will start listening on port `3000`.
+
+
+## OpenId Connect configuration
+
+To set the openId provider, modify the `wellKnownUrl` variable in [application.ts](./src/application.ts) to the correct url for the desired OpenId Connect Provider.
+
+```typescript
+    //...
+    // Keycloak WellKnown configuration url
+    const wellKnownUrl = 'https://localhost:8080/auth/realms/i3-Market/.well-known/openid-configuration'; //<--This variable
+    this.bind('authentication.oidc.well-known-url').to(wellKnownUrl);
+    addExtension(
+      this,
+      AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      OpenIdConnectProvider,
+      {
+        namespace:
+        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      },
+    );
+    //...
+```
+
+To add more scopes or modify the used configurations, modify the constants found in [open-id-connect.strategy.ts](./src/auth/open-id-connect.strategy.ts):
+```typescript
+// OpenId configuration
+const CLIENT_ID = 'Backplane';
+const CALLBACK_URI = 'https://localhost:3000/auth/openid/callback';
+const RESPONSE_TYPE = 'code';
+const SCOPE = 'openid roles'; // <-- to add roles
+```
