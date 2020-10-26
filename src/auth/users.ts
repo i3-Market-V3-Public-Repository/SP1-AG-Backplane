@@ -18,7 +18,7 @@ export function createUser(email: string, password?: string, scopes: string[] = 
   if (users.has(email)) {
     throw Error('User already exists');
   }
-  console.log(`Create user ${email}`);
+  console.log(`Create user ${email} with scopes [${scopes}]`);
   const user = new User({
     email: email,
     password: password,

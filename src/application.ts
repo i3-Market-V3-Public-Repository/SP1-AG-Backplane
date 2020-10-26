@@ -1,5 +1,5 @@
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig, CoreTags, createBindingFromClass} from '@loopback/core';
+import {addExtension, ApplicationConfig, CoreTags, createBindingFromClass} from '@loopback/core';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
@@ -9,14 +9,13 @@ import {MySequence} from './sequence';
 import {
   AuthenticationBindings,
   AuthenticationComponent,
-  registerAuthenticationStrategy,
 } from '@loopback/authentication';
 import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
 import {JWT_DEFAULT_OPTIONS, JWTAuthenticationStrategyBindings} from './auth/jwt.options';
 import {localAuthStrategy} from './auth/local.strategy';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import {OpenIdConnectAuthenticationStrategy} from './auth/open-id-connect.strategy';
+import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
 import {
   AuthorizationBindings,
   AuthorizationComponent,
@@ -33,6 +32,7 @@ export class BackplaneApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
     this.add(createBindingFromClass(JWTSpecEnhancer));
+    this.add(createBindingFromClass(OpenIdSpecEnhancer));
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -67,7 +67,19 @@ export class BackplaneApplication extends BootMixin(
         [CoreTags.EXTENSION_FOR]:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       });
-    registerAuthenticationStrategy(this, OpenIdConnectAuthenticationStrategy);
+
+    // Keycloak WellKnown configuration url
+    const wellKnownUrl = 'https://localhost:8080/auth/realms/i3-Market/.well-known/openid-configuration';
+    this.bind('authentication.oidc.well-known-url').to(wellKnownUrl);
+    addExtension(
+      this,
+      AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      OpenIdConnectProvider,
+      {
+        namespace:
+        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      },
+    );
 
     const authorizationOptions: AuthorizationOptions = {
       precedence: AuthorizationDecision.DENY,

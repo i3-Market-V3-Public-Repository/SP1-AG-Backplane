@@ -1,5 +1,5 @@
 import {BackplaneUserProfile, createUser, findByEmail} from './users';
-import {asAuthStrategy, AuthenticationStrategy} from '@loopback/authentication';
+import {AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
   asSpecEnhancer,
@@ -9,34 +9,35 @@ import {
   RedirectRoute,
   Request,
 } from '@loopback/rest';
-import {injectable} from '@loopback/core';
+import {inject, injectable, Provider} from '@loopback/core';
 import {default as axios} from 'axios';
 import {decode} from 'jsonwebtoken';
 
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
 
-const BASE_URL = 'https://localhost:8080';
-const AUTHORIZATION_ENDPOINT = BASE_URL + '/auth/realms/i3-Market/protocol/openid-connect/auth';
-const TOKEN_ENDPOINT = BASE_URL + '/auth/realms/i3-Market/protocol/openid-connect/token';
+// OpenId configuration
 const CLIENT_ID = 'Backplane';
-const REDIRECT_URI = 'https://localhost:3000/auth/openid/callback';
+const CALLBACK_URI = 'https://localhost:3000/auth/openid/callback';
 const RESPONSE_TYPE = 'code';
 const SCOPE = 'openid roles';
 
-const REDIRECT_URL = `${AUTHORIZATION_ENDPOINT}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
 
-@injectable(asAuthStrategy, asSpecEnhancer)
-export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy, OASEnhancer {
+export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
 
-  constructor() {
+  constructor(
+    private clientId: string,
+    private tokenEndpoint: string,
+    private redirectUrl: string,
+    private callbackUri: string,
+  ) {
   }
 
   async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
     if (request.path === '/auth/openid/login') {
       // Handle redirect to OpenId Provider
-      return new RedirectRoute(request.path, REDIRECT_URL, 302);
+      return new RedirectRoute(request.path, this.redirectUrl, 302);
     } else {
       // Handle OpenId Provider callback
       const authCode = this.extractAuthCode(request);
@@ -65,7 +66,6 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     };
   }
 
-
   extractAuthCode(request: Request): string | undefined {
     const params = request.url.replace(request.baseUrl + '?', '').split('&');
     for (const param of params) {
@@ -76,17 +76,34 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     return undefined;
   }
 
+  private async getToken(authCode: string) {
+    const tokenData = `code=${authCode}&grant_type=authorization_code&redirect_uri=${this.callbackUri}&client_id=${this.clientId}`;
+    const tokenResponse = await axios.post(this.tokenEndpoint, tokenData, {
+      headers: {'content-type': 'application/x-www-form-urlencoded'},
+    });
+    return tokenResponse.data;
+  }
+}
+
+export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticationStrategy> {
+  constructor(@inject('authentication.oidc.well-known-url') private wellKnownURL: string,
+  ) {}
+
+  async value(): Promise<OpenIdConnectAuthenticationStrategy> {
+    console.log('New strategy created')
+    const response = await axios.get(this.wellKnownURL);
+    const redirectUrl = `${response.data['authorization_endpoint']}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${CALLBACK_URI}`;
+    return new OpenIdConnectAuthenticationStrategy('Backplane', response.data['token_endpoint'], redirectUrl, CALLBACK_URI);
+  }
+}
+
+@injectable(asSpecEnhancer)
+export class OpenIdSpecEnhancer implements OASEnhancer {
+  name = OPENID_STRATEGY_NAME;
+
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
     return mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'openIdConnect',
     });
-  }
-
-  private async getToken(authCode: string) {
-    const tokenData = `code=${authCode}&grant_type=authorization_code&redirect_uri=${REDIRECT_URI}&client_id=${CLIENT_ID}`;
-    const tokenResponse = await axios.post(TOKEN_ENDPOINT, tokenData, {
-      headers: {'content-type': 'application/x-www-form-urlencoded'},
-    });
-    return tokenResponse.data;
   }
 }
