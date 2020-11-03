@@ -10,7 +10,7 @@ import {
   Request,
 } from '@loopback/rest';
 import {inject, injectable, Provider} from '@loopback/core';
-import {default as axios} from 'axios';
+import {AxiosResponse, default as axios} from 'axios';
 import {decode} from 'jsonwebtoken';
 
 export const OPENID_STRATEGY_NAME = 'openId';
@@ -86,12 +86,16 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
 }
 
 export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticationStrategy> {
-  constructor(@inject('authentication.oidc.well-known-url') private wellKnownURL: string,
-  ) {}
+  private cachedResponses: Map<string, AxiosResponse> = new Map();
+
+  constructor(
+    @inject('authentication.oidc.well-known-url') private wellKnownURL: string,
+  ) {
+  }
 
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
-    console.log('New strategy created')
-    const response = await axios.get(this.wellKnownURL);
+    console.log('New strategy created');
+    const response = this.cachedResponses.has(this.wellKnownURL) ? this.cachedResponses.get(this.wellKnownURL)! : await axios.get(this.wellKnownURL);
     const redirectUrl = `${response.data['authorization_endpoint']}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${CALLBACK_URI}`;
     return new OpenIdConnectAuthenticationStrategy('Backplane', response.data['token_endpoint'], redirectUrl, CALLBACK_URI);
   }
