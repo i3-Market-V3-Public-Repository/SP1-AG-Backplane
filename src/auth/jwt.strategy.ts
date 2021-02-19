@@ -1,6 +1,6 @@
-import {Strategy, VerifiedCallback} from 'passport-jwt';
+import {ExtractJwt, Strategy, VerifiedCallback} from 'passport-jwt';
 import {Request} from 'express';
-import {findByEmail} from './users';
+import {findById} from './users';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 import {JWT_SECRET} from './jwt.options';
 import {injectable} from '@loopback/core';
@@ -11,7 +11,7 @@ interface Payload {
 }
 
 function verify(payload: Payload, done: VerifiedCallback) {
-  const user = findByEmail(payload.sub);
+  const user = findById(payload.sub);
   if (user) {
     console.log(`jwt for user ${payload.sub} verified and the user is in the db`);
     return done(null, user);
@@ -20,11 +20,10 @@ function verify(payload: Payload, done: VerifiedCallback) {
   return done(null, false);
 }
 
-function jwtCookieExtractor(request: Request): string | null {
-  return request?.cookies?.jwt ?? null;
-}
-
-const jwtStrategy = new Strategy({jwtFromRequest: jwtCookieExtractor, secretOrKey: JWT_SECRET}, verify);
+const jwtStrategy = new Strategy({
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: JWT_SECRET,
+}, verify);
 
 export const JWT_STRATEGY_NAME = 'jwt';
 export const JWT_SECURITY_SCHEMA = {jwt: []};

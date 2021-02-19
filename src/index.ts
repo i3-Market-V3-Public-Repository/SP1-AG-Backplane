@@ -23,6 +23,7 @@ if (require.main === module) {
   https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt');
   https.globalAgent.options.cert = cert;
   https.globalAgent.options.key = key;
+  https.globalAgent.options.rejectUnauthorized = false;
 
   const config = {
     rest: {
@@ -37,6 +38,7 @@ if (require.main === module) {
       key: key,
       cert: cert,
       ca: fs.readFileSync('./certificates/ca-cert.crt'),
+      rejectUnauthorized: false,
     },
   };
   main(config).catch(err => {

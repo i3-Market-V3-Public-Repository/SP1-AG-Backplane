@@ -33,11 +33,9 @@ export class User extends Model {
     type: 'string',
     required: true,
     jsonSchema: {
-      format: 'email',
-      example: 'email@example.com',
     },
   })
-  email: string;
+  id: string;
 
   @property({
     type: 'string',
@@ -53,13 +51,13 @@ export class User extends Model {
     itemType: 'string',
     required: true,
   })
-  scopes: string[];
+  claims: string[];
 
 
   constructor(data?: Partial<User>) {
     super(data);
-    if (!this.scopes) {
-      this.scopes = [];
+    if (!this.claims) {
+      this.claims = [];
     }
   }
 }

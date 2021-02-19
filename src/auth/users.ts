@@ -1,45 +1,46 @@
 import {UserProfile} from '@loopback/security';
 import {User} from '../models';
+import {IdTokenClaims} from 'openid-client';
 
 export interface BackplaneUserProfile extends UserProfile {
-  email: string;
-  scopes: string[];
+  id: string;
+  claims: string[];
 }
 
 const users: Map<string, User> = new Map();
 
-export function findByEmail(email: string): User | undefined {
-  console.log(`Looking for user ${email}`);
-  const user = users.get(email);
+export function findById(id: string): User | undefined {
+  console.log(`Looking for user ${id}`);
+  const user = users.get(id);
   return user ? Object.assign({}, user) : undefined;
 }
 
-export function createUser(email: string, password?: string, scopes: string[] = []): User {
-  if (users.has(email)) {
+export function createUser(id: string, claims: string[], password?: string): User {
+  if (users.has(id)) {
     throw Error('User already exists');
   }
-  console.log(`Create user ${email} with scopes [${scopes}]`);
+  console.log(`Create user ${id} with scopes [${claims}]`);
   const user = new User({
-    email: email,
+    id: id,
     password: password,
-    scopes: scopes,
+    claims: claims,
   });
-  users.set(email, user);
+  users.set(id, user);
   return Object.assign({}, user);
 }
 
-export function updateUser(email: string, scopes: string[]): User {
-  const user = users.get(email);
+export function updateUser(id: string, claims: string[]): User {
+  const user = users.get(id);
   if (!user) {
     throw Error('User does not exists');
   }
-  user.scopes = scopes;
+  user.claims = claims;
   return Object.assign({}, user);
 
 }
 
-export function setUserPassword(email: string, password: string): User {
-  const user = users.get(email);
+export function setUserPassword(id: string, password: string): User {
+  const user = users.get(id);
   if (!user) {
     throw Error('User does not exists');
   }

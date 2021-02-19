@@ -1,10 +1,10 @@
 import {Strategy} from 'passport-local';
-import {findByEmail} from './users';
+import {findById} from './users';
 import * as bcrypt from 'bcryptjs';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 
-function verify(email: string, password: string, cb: Function) {
-  const user = findByEmail(email);
+function verify(id: string, password: string, cb: Function) {
+  const user = findById(id);
   if (!user?.password) {
     return cb(null, false);
   }
@@ -15,7 +15,7 @@ function verify(email: string, password: string, cb: Function) {
 }
 
 const localStrategy = new Strategy({
-  usernameField: 'email',
+  usernameField: 'id',
   passwordField: 'password',
   session: false,
 }, verify);

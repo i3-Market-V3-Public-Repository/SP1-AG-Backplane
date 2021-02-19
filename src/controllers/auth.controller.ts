@@ -5,7 +5,7 @@ import {genSalt, hash} from 'bcryptjs';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
 import {BackplaneUserProfile, createUser, setUserPassword} from '../auth/users';
-import {JWT_AUD, JWT_COOKIE_OPTIONS, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
+import {JWT_AUD, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 import {LOCAL_STRATEGY_NAME} from '../auth/local.strategy';
 import path from 'path';
@@ -48,20 +48,16 @@ export class AuthController {
   constructor() {
   }
 
-  private addJWTCookie(user: BackplaneUserProfile, response: Response) {
+  private getJWT(user: BackplaneUserProfile) {
     const jwtClaims = {
-      sub: user.email,
+      sub: user.id,
       iss: JWT_ISS,
       aud: JWT_AUD,
       exp: Math.floor(Date.now() / 1000) + 604800,
-      email: user.email,
       scopes: user.scopes,
     };
 
-    const token = jwt.sign(jwtClaims, JWT_SECRET);
-
-    response.cookie('jwt', token, JWT_COOKIE_OPTIONS);
-    return token;
+    return jwt.sign(jwtClaims, JWT_SECRET);
   }
 
   @get('auth/login', {
@@ -97,8 +93,9 @@ export class AuthController {
     @inject(AuthenticationBindings.CURRENT_USER) user: BackplaneUserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    this.addJWTCookie(user, response);
-    response.statusCode = 204;
+    response.statusCode = 200;
+    const token = this.getJWT(user);
+    response.json({type: 'jwt', token});
   }
 
   @authenticate(JWT_STRATEGY_NAME)
@@ -153,8 +150,8 @@ export class AuthController {
       newUserRequest: NewUserRequest,
   ): Promise<string> {
     const password = await hash(newUserRequest.password, await genSalt());
-    const user = createUser(newUserRequest.email, password);
-    return user.email;
+    const user = createUser(newUserRequest.email, [],  password);
+    return user.id;
   }
 
   @authenticate(JWT_STRATEGY_NAME)
@@ -190,8 +187,8 @@ export class AuthController {
     @inject(AuthenticationBindings.CURRENT_USER) currentUser: BackplaneUserProfile,
   ): Promise<string> {
     const password = await hash(newPassword.password, await genSalt());
-    setUserPassword(currentUser.email, password);
-    return currentUser.email;
+    setUserPassword(currentUser.id, password);
+    return currentUser.id;
   }
 
 
@@ -242,7 +239,8 @@ export class AuthController {
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    response.statusCode = 204;
-    this.addJWTCookie(user, response);
+    response.statusCode = 200;
+    const token = this.getJWT(user);
+    response.json({type: 'jwt', token});
   }
 }

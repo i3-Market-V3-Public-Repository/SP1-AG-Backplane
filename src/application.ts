@@ -69,7 +69,7 @@ export class BackplaneApplication extends BootMixin(
       });
 
     // Keycloak WellKnown configuration url
-    const wellKnownUrl = 'https://localhost:8080/auth/realms/i3-Market/.well-known/openid-configuration';
+    const wellKnownUrl = 'https://oidc.i3m.gold.upc.edu/oidc/.well-known/openid-configuration';
     this.bind('authentication.oidc.well-known-url').to(wellKnownUrl);
     addExtension(
       this,

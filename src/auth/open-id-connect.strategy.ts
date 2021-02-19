@@ -1,4 +1,4 @@
-import {BackplaneUserProfile, createUser, findByEmail} from './users';
+import {BackplaneUserProfile, createUser, findById} from './users';
 import {AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
@@ -10,83 +10,56 @@ import {
   Request,
 } from '@loopback/rest';
 import {inject, injectable, Provider} from '@loopback/core';
-import {AxiosResponse, default as axios} from 'axios';
 import {decode} from 'jsonwebtoken';
+import {Client, Issuer} from 'openid-client';
 
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
-
-// OpenId configuration
-const CLIENT_ID = 'Backplane';
-const CALLBACK_URI = 'https://localhost:3000/auth/openid/callback';
-const RESPONSE_TYPE = 'code';
-const SCOPE = 'openid roles';
 
 
 export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
 
   constructor(
-    private clientId: string,
-    private tokenEndpoint: string,
-    private redirectUrl: string,
-    private callbackUri: string,
+    private client: Client,
   ) {
   }
 
   async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
     if (request.path === '/auth/openid/login') {
       // Handle redirect to OpenId Provider
-      return new RedirectRoute(request.path, this.redirectUrl, 302);
+      return this.authenticateRedirect(request);
     } else {
       // Handle OpenId Provider callback
-      const authCode = this.extractAuthCode(request);
-      if (!authCode) return undefined;
-      const tokens = await this.getToken(authCode);
-      const data = this.extractData(tokens.access_token);
-      if (!data.email) {
-        return undefined;
-      }
-      let user = findByEmail(data.email);
-      if (!user) {
-        user = createUser(data.email, undefined, data.scopes);
-      }
-      // else {
-      //   user = updateUser(data.email, data.scopes ?? []);
-      // }
-      return {email: user.email, scopes: user.scopes} as BackplaneUserProfile;
+      return this.authenticateCallback(request);
     }
   }
 
-  extractData(token: string): {email?: string, scopes?: string[]} {
-    const decoded = decode(token) as {[key: string]: unknown};
-    return {
-      email: decoded?.['email'] as string,
-      scopes: (decoded?.['realm_access'] as {[key: string]: unknown})?.['roles'] as string[],
-    };
-  }
-
-  extractAuthCode(request: Request): string | undefined {
-    const params = request.url.replace(request.baseUrl + '?', '').split('&');
-    for (const param of params) {
-      if (param.startsWith('code')) {
-        return param.substr(5);
-      }
-    }
-    return undefined;
-  }
-
-  private async getToken(authCode: string) {
-    const tokenData = `code=${authCode}&grant_type=authorization_code&redirect_uri=${this.callbackUri}&client_id=${this.clientId}`;
-    const tokenResponse = await axios.post(this.tokenEndpoint, tokenData, {
-      headers: {'content-type': 'application/x-www-form-urlencoded'},
+  private authenticateRedirect(request: Request): RedirectRoute {
+    const authUrl = this.client.authorizationUrl({
+      scope: 'openid vc',
     });
-    return tokenResponse.data;
+    return new RedirectRoute(request.path, authUrl, 302);
+  }
+
+  private async authenticateCallback(request: Request): Promise<UserProfile | undefined> {
+    const params = this.client.callbackParams(request);
+    const tokenSet = await this.client.callback(this.client.metadata.redirect_uris![0], params);
+
+    const data = decode(tokenSet.id_token!) as {[p: string]: unknown};
+    let user = findById(data.sub as string);
+    if (!user) {
+      // TODO: Get real claims somehow
+      const claims = Object.keys(tokenSet.claims());
+      user = createUser(data.sub as string, claims, undefined);
+    }
+    return {id: user.id, claims: user.claims} as BackplaneUserProfile;
   }
 }
 
 export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticationStrategy> {
-  private cachedResponses: Map<string, AxiosResponse> = new Map();
+
+  private strategy: OpenIdConnectAuthenticationStrategy;
 
   constructor(
     @inject('authentication.oidc.well-known-url') private wellKnownURL: string,
@@ -94,10 +67,25 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
   }
 
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
-    console.log('New strategy created');
-    const response = this.cachedResponses.has(this.wellKnownURL) ? this.cachedResponses.get(this.wellKnownURL)! : await axios.get(this.wellKnownURL);
-    const redirectUrl = `${response.data['authorization_endpoint']}?response_type=${RESPONSE_TYPE}&scope=${SCOPE}&client_id=${CLIENT_ID}&redirect_uri=${CALLBACK_URI}`;
-    return new OpenIdConnectAuthenticationStrategy('Backplane', response.data['token_endpoint'], redirectUrl, CALLBACK_URI);
+    if (!this.strategy) {
+      const issuer = await Issuer.discover(this.wellKnownURL);
+      const client = new issuer.Client({
+          /* eslint-disable @typescript-eslint/naming-convention */
+          client_id: 'AdhvMe7vu0ggyblApAH_z',
+          client_secret: '7sbUuud7Tl907ySgIrIPG5x4re88JlSk6TyvaERq4lwZa9A9LoVkAtX4UEI26pfG49SZXrKS1bY6rn37bPr_CQ',
+          redirect_uris: ['https://localhost:3000/auth/openid/callback'],
+          application_type: 'web',
+          grant_types: ['authorization_code'],
+          response_types: ['code'],
+          token_endpoint_auth_method: 'client_secret_jwt',
+          id_token_signed_response_alg: 'EdDSA',
+          /* eslint-enable @typescript-eslint/naming-convention */
+        },
+      );
+      this.strategy = new OpenIdConnectAuthenticationStrategy(client);
+      console.log('New strategy created');
+    }
+    return this.strategy;
   }
 }
 
