@@ -1,4 +1,4 @@
-import {Request, RestBindings, get, ResponseObject} from '@loopback/rest';
+import {get, Request, ResponseObject, RestBindings} from '@loopback/rest';
 import {inject} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';

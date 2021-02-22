@@ -98,3 +98,12 @@ docker run -p 8080:8443
 ```
 
 The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
+
+
+## Environment Variables
+```
+CLIENT_ID = <client_id_openid>
+CLIENT_SECRET = <client_secret_openid>
+PUBLIC_URI = https://localhost:3000
+PROVIDER_URI = https://oidc.i3m.gold.upc.edu
+```

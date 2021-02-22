@@ -1,6 +1,5 @@
 import {UserProfile} from '@loopback/security';
 import {User} from '../models';
-import {IdTokenClaims} from 'openid-client';
 
 export interface BackplaneUserProfile extends UserProfile {
   id: string;

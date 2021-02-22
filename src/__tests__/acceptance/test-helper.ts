@@ -1,9 +1,5 @@
 import {BackplaneApplication} from '../..';
-import {
-  createRestAppClient,
-  givenHttpServerConfig,
-  Client,
-} from '@loopback/testlab';
+import {Client, createRestAppClient, givenHttpServerConfig,} from '@loopback/testlab';
 
 export async function setupApplication(): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({

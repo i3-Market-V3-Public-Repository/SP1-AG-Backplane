@@ -1,5 +1,5 @@
 import {BackplaneUserProfile, createUser, findById} from './users';
-import {AuthenticationStrategy} from '@loopback/authentication';
+import {AuthenticationBindings, AuthenticationMetadata, AuthenticationStrategy} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {
   asSpecEnhancer,
@@ -9,9 +9,11 @@ import {
   RedirectRoute,
   Request,
 } from '@loopback/rest';
-import {inject, injectable, Provider} from '@loopback/core';
+import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {decode} from 'jsonwebtoken';
 import {Client, Issuer} from 'openid-client';
+import {AuthenticationStrategyOptions, OpenIdConnectAuthenticationStrategyBindings} from "./auth.options";
+import {OPEN_ID_METADATA} from "./open-id-connect.options";
 
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
@@ -20,13 +22,19 @@ export const OPENID_SECURITY_SCHEMA = {openId: []};
 export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
 
+  @inject(OpenIdConnectAuthenticationStrategyBindings.DEFAULT_OPTIONS)
+  options: AuthenticationStrategyOptions;
+
   constructor(
     private client: Client,
+    @inject.getter(AuthenticationBindings.METADATA)
+    readonly getMetaData: Getter<AuthenticationMetadata>
   ) {
   }
 
   async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
-    if (request.path === '/auth/openid/login') {
+    await this.processOptions();
+    if (this.options.isLoginEndpoint) {
       // Handle redirect to OpenId Provider
       return this.authenticateRedirect(request);
     } else {
@@ -55,6 +63,25 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     }
     return {id: user.id, claims: user.claims} as BackplaneUserProfile;
   }
+
+  async processOptions() {
+    /**
+     Obtain the options object specified in the @authenticate decorator
+     of a controller method associated with the current request.
+     The AuthenticationMetadata interface contains : strategy:string, options?:object
+     We want the options property.
+     */
+    const controllerMethodAuthenticationMetadata = await this.getMetaData();
+
+    if (!this.options) this.options = {}; //if no default options were bound, assign empty options object
+
+    //override default options with request-level options
+    this.options = Object.assign(
+        {},
+        this.options,
+        controllerMethodAuthenticationMetadata.options,
+    );
+  }
 }
 
 export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticationStrategy> {
@@ -63,26 +90,17 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
 
   constructor(
     @inject('authentication.oidc.well-known-url') private wellKnownURL: string,
+    @inject.getter(AuthenticationBindings.METADATA)
+    readonly getMetaData: Getter<AuthenticationMetadata>,
   ) {
   }
 
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
     if (!this.strategy) {
       const issuer = await Issuer.discover(this.wellKnownURL);
-      const client = new issuer.Client({
-          /* eslint-disable @typescript-eslint/naming-convention */
-          client_id: 'AdhvMe7vu0ggyblApAH_z',
-          client_secret: '7sbUuud7Tl907ySgIrIPG5x4re88JlSk6TyvaERq4lwZa9A9LoVkAtX4UEI26pfG49SZXrKS1bY6rn37bPr_CQ',
-          redirect_uris: ['https://localhost:3000/auth/openid/callback'],
-          application_type: 'web',
-          grant_types: ['authorization_code'],
-          response_types: ['code'],
-          token_endpoint_auth_method: 'client_secret_jwt',
-          id_token_signed_response_alg: 'EdDSA',
-          /* eslint-enable @typescript-eslint/naming-convention */
-        },
+      const client = new issuer.Client(OPEN_ID_METADATA,
       );
-      this.strategy = new OpenIdConnectAuthenticationStrategy(client);
+      this.strategy = new OpenIdConnectAuthenticationStrategy(client, this.getMetaData);
       console.log('New strategy created');
     }
     return this.strategy;

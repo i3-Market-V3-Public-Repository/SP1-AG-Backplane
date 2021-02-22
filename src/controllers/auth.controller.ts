@@ -48,7 +48,7 @@ export class AuthController {
   constructor() {
   }
 
-  private getJWT(user: BackplaneUserProfile) {
+  private static getJWT(user: BackplaneUserProfile) {
     const jwtClaims = {
       sub: user.id,
       iss: JWT_ISS,
@@ -94,7 +94,7 @@ export class AuthController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     response.statusCode = 200;
-    const token = this.getJWT(user);
+    const token = AuthController.getJWT(user);
     response.json({type: 'jwt', token});
   }
 
@@ -196,7 +196,7 @@ export class AuthController {
   // --------------------------------       OpenId       ----------------------------------
   // --------------------------------------------------------------------------------------
 
-  @authenticate(OPENID_STRATEGY_NAME)
+  @authenticate({strategy: OPENID_STRATEGY_NAME, options: {isLoginEndpoint: true}})
   @get('/auth/openid/login', {
     description: 'Endpoint to start the authentication with an external OpenId Provider',
     security: [
@@ -240,7 +240,7 @@ export class AuthController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     response.statusCode = 200;
-    const token = this.getJWT(user);
+    const token = AuthController.getJWT(user);
     response.json({type: 'jwt', token});
   }
 }

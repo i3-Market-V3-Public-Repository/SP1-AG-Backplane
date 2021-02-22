@@ -6,12 +6,9 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
-import {
-  AuthenticationBindings,
-  AuthenticationComponent,
-} from '@loopback/authentication';
+import {AuthenticationBindings, AuthenticationComponent,} from '@loopback/authentication';
 import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
-import {JWT_DEFAULT_OPTIONS, JWTAuthenticationStrategyBindings} from './auth/jwt.options';
+import {JWT_DEFAULT_OPTIONS} from './auth/jwt.options';
 import {localAuthStrategy} from './auth/local.strategy';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -20,9 +17,15 @@ import {
   AuthorizationBindings,
   AuthorizationComponent,
   AuthorizationDecision,
-  AuthorizationOptions, AuthorizationTags,
+  AuthorizationOptions,
+  AuthorizationTags,
 } from '@loopback/authorization';
 import {AuthorizationProvider} from './auth/authorizator.provider';
+import {
+  getWellKnownUrl,
+  JWTAuthenticationStrategyBindings,
+  OpenIdConnectAuthenticationStrategyBindings
+} from "./auth/auth.options";
 
 export {ApplicationConfig};
 
@@ -68,9 +71,8 @@ export class BackplaneApplication extends BootMixin(
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       });
 
-    // Keycloak WellKnown configuration url
-    const wellKnownUrl = 'https://oidc.i3m.gold.upc.edu/oidc/.well-known/openid-configuration';
-    this.bind('authentication.oidc.well-known-url').to(wellKnownUrl);
+    // WellKnown configuration url
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL).to(getWellKnownUrl());
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
@@ -80,6 +82,10 @@ export class BackplaneApplication extends BootMixin(
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       },
     );
+
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.DEFAULT_OPTIONS).to({
+      isLoginEndpoint: false,
+    });
 
     const authorizationOptions: AuthorizationOptions = {
       precedence: AuthorizationDecision.DENY,
