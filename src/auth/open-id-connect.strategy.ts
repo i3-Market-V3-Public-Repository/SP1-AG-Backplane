@@ -89,7 +89,7 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
   private strategy: OpenIdConnectAuthenticationStrategy;
 
   constructor(
-    @inject('authentication.oidc.well-known-url') private wellKnownURL: string,
+    @inject(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL) private wellKnownURL: string,
     @inject.getter(AuthenticationBindings.METADATA)
     readonly getMetaData: Getter<AuthenticationMetadata>,
   ) {
