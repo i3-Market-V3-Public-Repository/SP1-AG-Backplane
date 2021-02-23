@@ -46,3 +46,8 @@ if (require.main === module) {
     process.exit(1);
   });
 }
+
+export function getPublicUri(): string {
+  const port = process.env.PORT;
+  return (process.env.PUBLIC_URI ?? `https://localhost:${port as string}`);
+}

@@ -1,4 +1,4 @@
-import {getPublicUri} from "./auth.options";
+import {getPublicUri} from "../index";
 
 export const JWT_DEFAULT_OPTIONS = {session: false, failureRedirect: '/login'};
 export const JWT_SECRET = 'secret';

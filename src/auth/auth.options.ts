@@ -18,11 +18,6 @@ function getAuthBindingKey(key: string) {
     return BindingKey.create<AuthenticationStrategyOptions>(key);
 }
 
-export function getPublicUri():string{
-    const port = process.env.PORT;
-    return (process.env.PUBLIC_URI ?? `https://localhost:${port as string}`);
-}
-
 export function getWellKnownUrl(){
     return '${process.env.PROVIDER_URI}/oidc/.well-known/openid-configuration'
 }

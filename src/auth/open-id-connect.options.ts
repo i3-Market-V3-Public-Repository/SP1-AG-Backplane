@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {ClientMetadata} from "openid-client";
-import {getPublicUri} from "./auth.options";
+import {getPublicUri} from "../index";
 
 export const OPEN_ID_METADATA:ClientMetadata = {
     client_id: process.env.CLIENT_ID as string,
