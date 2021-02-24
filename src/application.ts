@@ -20,11 +20,10 @@ import {
   AuthorizationTags,
 } from '@loopback/authorization';
 import {AuthorizationProvider} from './auth/authorizator.provider';
-import {
-  getWellKnownUrl,
-  JWTAuthenticationStrategyBindings,
-  OpenIdConnectAuthenticationStrategyBindings
-} from "./auth/auth.options";
+import {JWTAuthenticationStrategyBindings, OpenIdConnectAuthenticationStrategyBindings} from "./services";
+import {OPEN_ID_WELL_KNOWN_URL} from "./auth/open-id-connect.options";
+
+
 
 export {ApplicationConfig};
 
@@ -56,7 +55,7 @@ export class BackplaneApplication extends BootMixin(
     this.component(AuthenticationComponent);
     this.bind(JWTAuthenticationStrategyBindings.DEFAULT_OPTIONS).to(JWT_DEFAULT_OPTIONS);
     this
-      .bind('authentication.strategies.jwtAuthStrategy')
+      .bind(JWTAuthenticationStrategyBindings.STRATEGY)
       .to(jwtAuthStrategy)
       .tag({
         [CoreTags.EXTENSION_FOR]:
@@ -64,7 +63,7 @@ export class BackplaneApplication extends BootMixin(
       });
 
     // WellKnown configuration url
-    this.bind(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL).to(getWellKnownUrl());
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL).to(OPEN_ID_WELL_KNOWN_URL);
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,

@@ -14,5 +14,7 @@ export const OPEN_ID_METADATA:ClientMetadata = {
     scope: 'openid vc'
 }
 
+export const OPEN_ID_WELL_KNOWN_URL = `${process.env.PROVIDER_URI}/oidc/.well-known/openid-configuration`;
+
 
 

@@ -12,8 +12,9 @@ import {
 import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {decode} from 'jsonwebtoken';
 import {Client, Issuer} from 'openid-client';
-import {AuthenticationStrategyOptions, OpenIdConnectAuthenticationStrategyBindings} from "./auth.options";
 import {OPEN_ID_METADATA} from "./open-id-connect.options";
+import {OpenIdConnectAuthenticationStrategyBindings} from "../services";
+import {AuthenticationStrategyOptions} from "./auth.options";
 
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
