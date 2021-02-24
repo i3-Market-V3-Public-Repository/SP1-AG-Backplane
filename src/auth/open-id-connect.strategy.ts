@@ -18,7 +18,6 @@ import {OPEN_ID_METADATA} from "./open-id-connect.options";
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
 
-
 export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
 
@@ -45,7 +44,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
 
   private authenticateRedirect(request: Request): RedirectRoute {
     const authUrl = this.client.authorizationUrl({
-      scope: 'openid vc',
+      scope: OPEN_ID_METADATA.scope as string,
     });
     return new RedirectRoute(request.path, authUrl, 302);
   }
