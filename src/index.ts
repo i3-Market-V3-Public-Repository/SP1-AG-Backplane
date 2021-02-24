@@ -20,7 +20,7 @@ if (require.main === module) {
   const cert = fs.readFileSync('./certificates/cert.crt');
   const key = fs.readFileSync('./certificates/key.key');
 
- // https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt');
+ // https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt'); TODO set ca-cert and uncomment
   https.globalAgent.options.cert = cert;
   https.globalAgent.options.key = key;
   https.globalAgent.options.rejectUnauthorized = false;
@@ -37,7 +37,7 @@ if (require.main === module) {
       minVersion: 'TLSv1.3',
       key: key,
       cert: cert,
-     // ca: fs.readFileSync('./certificates/ca-cert.crt'),
+     // ca: fs.readFileSync('./certificates/ca-cert.crt'), TODO set ca-cert and uncomment
       rejectUnauthorized: false,
     },
   };
@@ -47,7 +47,4 @@ if (require.main === module) {
   });
 }
 
-export function getPublicUri(): string {
-  const port = process.env.PORT;
-  return (process.env.PUBLIC_URI ?? `https://localhost:${port as string}`);
-}
+export const PUBLIC_URI:string = process.env.PUBLIC_URI ?? `https://localhost:${process.env.PORT as string}`;

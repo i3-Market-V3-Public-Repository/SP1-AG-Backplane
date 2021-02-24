@@ -9,7 +9,6 @@ import {MySequence} from './sequence';
 import {AuthenticationBindings, AuthenticationComponent,} from '@loopback/authentication';
 import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
 import {JWT_DEFAULT_OPTIONS} from './auth/jwt.options';
-import {localAuthStrategy} from './auth/local.strategy';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
@@ -56,13 +55,6 @@ export class BackplaneApplication extends BootMixin(
     // AUTH
     this.component(AuthenticationComponent);
     this.bind(JWTAuthenticationStrategyBindings.DEFAULT_OPTIONS).to(JWT_DEFAULT_OPTIONS);
-    this
-      .bind('authentication.strategies.basicAuthStrategy')
-      .to(localAuthStrategy)
-      .tag({
-        [CoreTags.EXTENSION_FOR]:
-        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      });
     this
       .bind('authentication.strategies.jwtAuthStrategy')
       .to(jwtAuthStrategy)

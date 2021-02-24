@@ -19,6 +19,6 @@ function getAuthBindingKey(key: string) {
 }
 
 export function getWellKnownUrl(){
-    return '${process.env.PROVIDER_URI}/oidc/.well-known/openid-configuration'
+    return `${process.env.PROVIDER_URI}/oidc/.well-known/openid-configuration`
 }
 
