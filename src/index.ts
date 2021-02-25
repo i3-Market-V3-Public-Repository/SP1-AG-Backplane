@@ -46,5 +46,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
-export const PUBLIC_URI:string = process.env.PUBLIC_URI ?? `https://localhost:${process.env.PORT as string}`;

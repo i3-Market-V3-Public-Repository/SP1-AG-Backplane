@@ -11,8 +11,7 @@ import {
 } from '@loopback/rest';
 import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {decode} from 'jsonwebtoken';
-import {Client, Issuer} from 'openid-client';
-import {OPEN_ID_METADATA} from "./open-id-connect.options";
+import {Client, ClientMetadata, Issuer} from 'openid-client';
 import {OpenIdConnectAuthenticationStrategyBindings} from "../services";
 import {AuthenticationStrategyOptions} from "./auth.options";
 
@@ -34,6 +33,8 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
 
   async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
     await this.processOptions();
+    console.log("Test");
+    console.log(this.options.isLoginEndpoint);
     if (this.options.isLoginEndpoint) {
       // Handle redirect to OpenId Provider
       return this.authenticateRedirect(request);
@@ -45,7 +46,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
 
   private authenticateRedirect(request: Request): RedirectRoute {
     const authUrl = this.client.authorizationUrl({
-      scope: OPEN_ID_METADATA.scope as string,
+      scope: this.client.metadata.scope as string,
     });
     return new RedirectRoute(request.path, authUrl, 302);
   }
@@ -71,7 +72,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
      The AuthenticationMetadata interface contains : strategy:string, options?:object
      We want the options property.
      */
-    const controllerMethodAuthenticationMetadata = await this.getMetaData();
+    const controllerMethodAuthenticationMetadata = await this.getMetaData() as unknown as Array<AuthenticationMetadata>;
 
     if (!this.options) this.options = {}; //if no default options were bound, assign empty options object
 
@@ -79,7 +80,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     this.options = Object.assign(
         {},
         this.options,
-        controllerMethodAuthenticationMetadata.options,
+        controllerMethodAuthenticationMetadata[0].options,
     );
   }
 }
@@ -90,6 +91,7 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
 
   constructor(
     @inject(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL) private wellKnownURL: string,
+    @inject(OpenIdConnectAuthenticationStrategyBindings.CLIENT_METADATA) private openIdMetadata : ClientMetadata,
     @inject.getter(AuthenticationBindings.METADATA)
     readonly getMetaData: Getter<AuthenticationMetadata>,
   ) {
@@ -98,7 +100,7 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
     if (!this.strategy) {
       const issuer = await Issuer.discover(this.wellKnownURL);
-      const client = new issuer.Client(OPEN_ID_METADATA,
+      const client = new issuer.Client(this.openIdMetadata,
       );
       this.strategy = new OpenIdConnectAuthenticationStrategy(client, this.getMetaData);
       console.log('New strategy created');

@@ -21,7 +21,7 @@ import {
 } from '@loopback/authorization';
 import {AuthorizationProvider} from './auth/authorizator.provider';
 import {JWTAuthenticationStrategyBindings, OpenIdConnectAuthenticationStrategyBindings} from "./services";
-import {OPEN_ID_WELL_KNOWN_URL} from "./auth/open-id-connect.options";
+import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from "./auth/open-id-connect.options";
 
 
 
@@ -73,6 +73,8 @@ export class BackplaneApplication extends BootMixin(
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       },
     );
+
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.CLIENT_METADATA).to(OPEN_ID_METADATA);
 
     this.bind(OpenIdConnectAuthenticationStrategyBindings.DEFAULT_OPTIONS).to({
       isLoginEndpoint: false,
