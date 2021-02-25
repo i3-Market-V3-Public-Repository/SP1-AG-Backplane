@@ -3,7 +3,7 @@ import {User} from '../models';
 
 export interface BackplaneUserProfile extends UserProfile {
   id: string;
-  claims: string[];
+  scope: string;
 }
 
 const users: Map<string, User> = new Map();
@@ -14,35 +14,25 @@ export function findById(id: string): User | undefined {
   return user ? Object.assign({}, user) : undefined;
 }
 
-export function createUser(id: string, claims: string[], password?: string): User {
+export function createUser(id: string, scope: string): User {
   if (users.has(id)) {
     throw Error('User already exists');
   }
-  console.log(`Create user ${id} with scopes [${claims}]`);
+  console.log(`Create user ${id} with scopes [${scope}]`);
   const user = new User({
     id: id,
-    password: password,
-    claims: claims,
+    scope: scope,
   });
   users.set(id, user);
   return Object.assign({}, user);
 }
 
-export function updateUser(id: string, claims: string[]): User {
+export function updateUser(id: string, scope: string): User {
   const user = users.get(id);
   if (!user) {
     throw Error('User does not exists');
   }
-  user.claims = claims;
+  user.scope = scope;
   return Object.assign({}, user);
 
-}
-
-export function setUserPassword(id: string, password: string): User {
-  const user = users.get(id);
-  if (!user) {
-    throw Error('User does not exists');
-  }
-  user.password = password;
-  return Object.assign({}, user);
 }

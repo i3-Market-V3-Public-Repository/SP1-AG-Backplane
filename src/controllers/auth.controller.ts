@@ -1,27 +1,11 @@
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {get, post, Request, requestBody, Response, RestBindings, SchemaObject} from '@loopback/rest';
-import {genSalt, hash} from 'bcryptjs';
+import {get, Request, Response, RestBindings, SchemaObject} from '@loopback/rest';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
-import {BackplaneUserProfile, createUser, setUserPassword} from '../auth/users';
+import {BackplaneUserProfile} from '../auth/users';
 import {JWT_AUD, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
-import path from 'path';
-import {NewUserRequest} from '../models';
-
-const PasswordSchema: SchemaObject = {
-  type: 'object',
-  title: 'Password',
-  required: ['password'],
-  properties: {
-    password: {
-      type: 'string',
-      example: 'password',
-      minLength: 8,
-    },
-  },
-};
 
 
 const UserProfileSchema: SchemaObject = {

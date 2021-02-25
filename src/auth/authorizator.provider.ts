@@ -16,11 +16,10 @@ export class AuthorizationProvider implements Provider<Authorizer> {
     metadata: AuthorizationMetadata,
   ) {
     const user = context.principals[0] as BackplaneUserProfile;
-    const claims = metadata.scopes ?? [];
-    for (const claim of claims) {
-      if (!user.claims.includes(claim)) {
+    const scopes = metadata.scopes ?? [];
+    for (const scope of scopes) {
+      if (!user.scope.split(' ').includes(scope))
         return AuthorizationDecision.DENY;
-      }
     }
     return AuthorizationDecision.ALLOW;
   }

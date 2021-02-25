@@ -38,26 +38,16 @@ export class User extends Model {
   id: string;
 
   @property({
-    type: 'string',
-    jsonSchema: {
-      format: 'password',
-      example: 'password123',
-    },
-  })
-  password?: string;
-
-  @property({
-    type: 'array',
-    itemType: 'string',
+    type: 'scope',
     required: true,
   })
-  claims: string[];
+  scope: string;
 
 
   constructor(data?: Partial<User>) {
     super(data);
-    if (!this.claims) {
-      this.claims = [];
+    if (!this.scope) {
+      this.scope = '';
     }
   }
 }

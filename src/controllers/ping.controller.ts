@@ -48,7 +48,6 @@ export class PingController {
     },
   })
   @authenticate(JWT_STRATEGY_NAME)
-  // @authorize({scopes: ['ping']})
   ping(): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {
@@ -68,7 +67,7 @@ export class PingController {
     },
   })
   @authenticate(JWT_STRATEGY_NAME)
-  @authorize({scopes: ['consumer']})
+  @authorize({scopes: ['vce:consumer']})
   pingConsumer(): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {
@@ -88,7 +87,7 @@ export class PingController {
     },
   })
   @authenticate(JWT_STRATEGY_NAME)
-  @authorize({scopes: ['provider']})
+  @authorize({scopes: ['vce:provider']})
   pingProvider(): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {

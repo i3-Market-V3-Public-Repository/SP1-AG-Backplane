@@ -12,8 +12,8 @@ import {
 import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {decode} from 'jsonwebtoken';
 import {Client, ClientMetadata, Issuer} from 'openid-client';
-import {OpenIdConnectAuthenticationStrategyBindings} from "../services";
-import {AuthenticationStrategyOptions} from "./auth.options";
+import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
+import {AuthenticationStrategyOptions} from './auth.options';
 
 export const OPENID_STRATEGY_NAME = 'openId';
 export const OPENID_SECURITY_SCHEMA = {openId: []};
@@ -27,13 +27,13 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
   constructor(
     private client: Client,
     @inject.getter(AuthenticationBindings.METADATA)
-    readonly getMetaData: Getter<AuthenticationMetadata>
+    readonly getMetaData: Getter<AuthenticationMetadata>,
   ) {
   }
 
   async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
     await this.processOptions();
-    console.log("Test");
+    console.log('Test');
     console.log(this.options.isLoginEndpoint);
     if (this.options.isLoginEndpoint) {
       // Handle redirect to OpenId Provider
@@ -58,11 +58,10 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     const data = decode(tokenSet.id_token!) as {[p: string]: unknown};
     let user = findById(data.sub as string);
     if (!user) {
-      // TODO: Get real claims somehow
-      const claims = Object.keys(tokenSet.claims());
-      user = createUser(data.sub as string, claims, undefined);
+      const scope = tokenSet.scope ?? '';
+      user = createUser(data.sub as string, scope);
     }
-    return {id: user.id, claims: user.claims} as BackplaneUserProfile;
+    return {id: user.id, scope: user.scope} as BackplaneUserProfile;
   }
 
   async processOptions() {
@@ -78,9 +77,9 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
 
     //override default options with request-level options
     this.options = Object.assign(
-        {},
-        this.options,
-        controllerMethodAuthenticationMetadata[0].options,
+      {},
+      this.options,
+      controllerMethodAuthenticationMetadata[0].options,
     );
   }
 }
@@ -91,7 +90,7 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
 
   constructor(
     @inject(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL) private wellKnownURL: string,
-    @inject(OpenIdConnectAuthenticationStrategyBindings.CLIENT_METADATA) private openIdMetadata : ClientMetadata,
+    @inject(OpenIdConnectAuthenticationStrategyBindings.CLIENT_METADATA) private openIdMetadata: ClientMetadata,
     @inject.getter(AuthenticationBindings.METADATA)
     readonly getMetaData: Getter<AuthenticationMetadata>,
   ) {
@@ -113,9 +112,13 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
 export class OpenIdSpecEnhancer implements OASEnhancer {
   name = OPENID_STRATEGY_NAME;
 
+  constructor(@inject('authentication.oidc.well-known-url') private url: string) {
+  }
+
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
     return mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'openIdConnect',
+      openIdConnectUrl: this.url,
     });
   }
 }
