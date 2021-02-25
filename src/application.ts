@@ -6,13 +6,9 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
-import {
-  AuthenticationBindings,
-  AuthenticationComponent,
-} from '@loopback/authentication';
+import {AuthenticationBindings, AuthenticationComponent,} from '@loopback/authentication';
 import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
-import {JWT_DEFAULT_OPTIONS, JWTAuthenticationStrategyBindings} from './auth/jwt.options';
-import {localAuthStrategy} from './auth/local.strategy';
+import {JWT_DEFAULT_OPTIONS} from './auth/jwt.options';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
@@ -20,9 +16,14 @@ import {
   AuthorizationBindings,
   AuthorizationComponent,
   AuthorizationDecision,
-  AuthorizationOptions, AuthorizationTags,
+  AuthorizationOptions,
+  AuthorizationTags,
 } from '@loopback/authorization';
 import {AuthorizationProvider} from './auth/authorizator.provider';
+import {JWTAuthenticationStrategyBindings, OpenIdConnectAuthenticationStrategyBindings} from "./services";
+import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from "./auth/open-id-connect.options";
+
+
 
 export {ApplicationConfig};
 
@@ -54,23 +55,15 @@ export class BackplaneApplication extends BootMixin(
     this.component(AuthenticationComponent);
     this.bind(JWTAuthenticationStrategyBindings.DEFAULT_OPTIONS).to(JWT_DEFAULT_OPTIONS);
     this
-      .bind('authentication.strategies.basicAuthStrategy')
-      .to(localAuthStrategy)
-      .tag({
-        [CoreTags.EXTENSION_FOR]:
-        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      });
-    this
-      .bind('authentication.strategies.jwtAuthStrategy')
+      .bind(JWTAuthenticationStrategyBindings.STRATEGY)
       .to(jwtAuthStrategy)
       .tag({
         [CoreTags.EXTENSION_FOR]:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       });
 
-    // Keycloak WellKnown configuration url
-    const wellKnownUrl = 'https://oidc.i3m.gold.upc.edu/oidc/.well-known/openid-configuration';
-    this.bind('authentication.oidc.well-known-url').to(wellKnownUrl);
+    // WellKnown configuration url
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL).to(OPEN_ID_WELL_KNOWN_URL);
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
@@ -80,6 +73,12 @@ export class BackplaneApplication extends BootMixin(
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       },
     );
+
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.CLIENT_METADATA).to(OPEN_ID_METADATA);
+
+    this.bind(OpenIdConnectAuthenticationStrategyBindings.DEFAULT_OPTIONS).to({
+      isLoginEndpoint: false,
+    });
 
     const authorizationOptions: AuthorizationOptions = {
       precedence: AuthorizationDecision.DENY,

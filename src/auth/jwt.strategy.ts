@@ -1,5 +1,4 @@
 import {ExtractJwt, Strategy, VerifiedCallback} from 'passport-jwt';
-import {Request} from 'express';
 import {findById} from './users';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 import {JWT_SECRET} from './jwt.options';
