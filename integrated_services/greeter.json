@@ -1,0 +1,189 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "greeter-service",
+    "version": "0.0.1",
+    "description": "Greeter Service of the i3-Market Project",
+    "contact": {
+      "name": "Víctor Diví",
+      "email": "victor.divi@upc.edu"
+    }
+  },
+  "paths": {
+    "/hello/authenticated": {
+      "get": {
+        "x-controller-name": "HelloController",
+        "x-operation-name": "helloAuthenticated",
+        "tags": [
+          "HelloController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Hello Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "header"
+          }
+        ],
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "openidConnect": []
+          }
+        ],
+        "operationId": "HelloController.helloAuthenticated"
+      }
+    },
+    "/hello/consumer": {
+      "get": {
+        "x-controller-name": "HelloController",
+        "x-operation-name": "helloConsumer",
+        "tags": [
+          "HelloController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Hello Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "header"
+          }
+        ],
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "openidConnect": [
+              "consumer"
+            ]
+          }
+        ],
+        "operationId": "HelloController.helloConsumer"
+      }
+    },
+    "/hello/provider": {
+      "get": {
+        "x-controller-name": "HelloController",
+        "x-operation-name": "helloProvider",
+        "tags": [
+          "HelloController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Hello Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "header"
+          }
+        ],
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "openidConnect": [
+              "provider"
+            ]
+          }
+        ],
+        "operationId": "HelloController.helloProvider"
+      }
+    },
+    "/hello/unauthenticated/{name}": {
+      "get": {
+        "x-controller-name": "HelloController",
+        "x-operation-name": "helloUnauthenticated",
+        "tags": [
+          "HelloController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Hello Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "HelloController.helloUnauthenticated"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://localhost:3333"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "HelloResponse": {
+        "type": "object",
+        "title": "HelloResponse",
+        "properties": {
+          "greeting": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "jwt": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "user"
+      }
+    }
+  }
+}

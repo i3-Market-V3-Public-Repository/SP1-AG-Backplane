@@ -1,6 +1,7 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
 import * as https from 'https';
 import * as fs from 'fs';
+import * as secrets from './secrets.json'
 
 export * from './application';
 
@@ -20,7 +21,7 @@ if (require.main === module) {
   const cert = fs.readFileSync('./certificates/cert.crt');
   const key = fs.readFileSync('./certificates/key.key');
 
- // https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt'); TODO set ca-cert and uncomment
+  https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt');
   https.globalAgent.options.cert = cert;
   https.globalAgent.options.key = key;
   https.globalAgent.options.rejectUnauthorized = false;
@@ -37,9 +38,10 @@ if (require.main === module) {
       minVersion: 'TLSv1.3',
       key: key,
       cert: cert,
-     // ca: fs.readFileSync('./certificates/ca-cert.crt'), TODO set ca-cert and uncomment
+      ca: fs.readFileSync('./certificates/ca-cert.crt'),
       rejectUnauthorized: false,
     },
+    secrets: secrets
   };
   main(config).catch(err => {
     console.error('Cannot start the application.', err);

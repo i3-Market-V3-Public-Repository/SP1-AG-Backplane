@@ -1,1 +1,2 @@
-export * from './user.model';
+export * from './greeter/hello-response.model'
+export * from './user.model'
