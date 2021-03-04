@@ -69,13 +69,20 @@ To set the openId provider, modify the `wellKnownUrl` variable in [application.t
     //...
 ```
 
-To add more scopes or modify the used configurations, modify the constants found in [open-id-connect.strategy.ts](./src/auth/open-id-connect.strategy.ts):
+To add more scopes or modify the used configurations, modify the constants found in [open-id-connect.options.ts](./src/auth/open-id-connect.options.ts):
 ```typescript
 // OpenId configuration
-const CLIENT_ID = 'Backplane';
-const CALLBACK_URI = 'https://localhost:3000/auth/openid/callback';
-const RESPONSE_TYPE = 'code';
-const SCOPE = 'openid roles'; // <-- to add roles
+export const OPEN_ID_METADATA:ClientMetadata = {
+    client_id: process.env.CLIENT_ID as string,
+    client_secret: process.env.CLIENT_SECRET as string,
+    redirect_uris: [`${getPublicUri()}/auth/openid/callback`],
+    application_type: 'web',
+    grant_types: ['authorization_code'],
+    response_types: ['code'],
+    token_endpoint_auth_method: 'client_secret_jwt',
+    id_token_signed_response_alg: 'EdDSA',
+    scope: 'openid vc'
+}
 ```
 
 
@@ -98,3 +105,13 @@ docker run -p 8080:8443
 ```
 
 The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
+
+
+## Environment Variables
+```shell
+CLIENT_ID = <client_id_openid>
+CLIENT_SECRET = <client_secret_openid>
+PUBLIC_URI = https://localhost:3000 (optional)
+PORT = 3000 (optional)
+PROVIDER_URI = https://oidc.i3m.gold.upc.edu
+```

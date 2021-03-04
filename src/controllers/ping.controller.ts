@@ -1,4 +1,4 @@
-import {Request, RestBindings, get, ResponseObject} from '@loopback/rest';
+import {get, Request, ResponseObject, RestBindings} from '@loopback/rest';
 import {inject} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
@@ -48,8 +48,47 @@ export class PingController {
     },
   })
   @authenticate(JWT_STRATEGY_NAME)
-  @authorize({scopes: ['ping']})
   ping(): object {
+    // Reply with a greeting, the current time, the url, and request headers
+    return {
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+      url: this.req.url,
+      headers: Object.assign({}, this.req.headers),
+    };
+  }
+
+  // Map to `GET /ping`
+  @get('/pingConsumer', {
+    description: 'Endpoint that returns a greeting along with some info of the request',
+    security: [JWT_SECURITY_SCHEMA],
+    responses: {
+      '200': PING_RESPONSE,
+    },
+  })
+  @authenticate(JWT_STRATEGY_NAME)
+  @authorize({scopes: ['vce:consumer']})
+  pingConsumer(): object {
+    // Reply with a greeting, the current time, the url, and request headers
+    return {
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+      url: this.req.url,
+      headers: Object.assign({}, this.req.headers),
+    };
+  }
+
+  // Map to `GET /ping`
+  @get('/pingProvider', {
+    description: 'Endpoint that returns a greeting along with some info of the request',
+    security: [JWT_SECURITY_SCHEMA],
+    responses: {
+      '200': PING_RESPONSE,
+    },
+  })
+  @authenticate(JWT_STRATEGY_NAME)
+  @authorize({scopes: ['vce:provider']})
+  pingProvider(): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {
       greeting: 'Hello from LoopBack',
