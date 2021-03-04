@@ -1,37 +1,17 @@
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {get, Request, Response, RestBindings, SchemaObject} from '@loopback/rest';
+import {get, Request, Response, RestBindings} from '@loopback/rest';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
 import {BackplaneUserProfile} from '../auth/users';
-import {JWT_AUD, JWT_ISS, JWT_SECRET} from '../auth/jwt.options';
+import {JWT_AUD, JWT_ISS} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
 
-
-const UserProfileSchema: SchemaObject = {
-  type: 'object',
-  title: 'User profile',
-  properties: {
-    email: {
-      type: 'string',
-      format: 'email',
-      example: 'email@example.com',
-    },
-    scopes: {
-      type: 'array',
-      items: {
-        type: 'string',
-        example: 'ping',
-      },
-    },
-  },
-};
-
 export class AuthController {
-  constructor() {
+  constructor(@inject('config.rest.key') private key: string | Buffer,) {
   }
 
-  private static getJWT(user: BackplaneUserProfile) {
+  private getJWT(user: BackplaneUserProfile) {
     const jwtClaims = {
       sub: user.id,
       iss: JWT_ISS,
@@ -40,7 +20,7 @@ export class AuthController {
       scopes: user.scopes,
     };
 
-    return jwt.sign(jwtClaims, JWT_SECRET);
+    return jwt.sign(jwtClaims, this.key);
   }
 
 
@@ -52,12 +32,7 @@ export class AuthController {
     ],
     responses: {
       '200': {
-        description: 'User profile',
-        content: {
-          'application/json': {
-            schema: UserProfileSchema,
-          },
-        },
+        $ref: '#/components/schemas/User',
       },
     },
   })
@@ -117,7 +92,7 @@ export class AuthController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     response.statusCode = 200;
-    const token = AuthController.getJWT(user);
+    const token = this.getJWT(user);
     response.json({type: 'jwt', token});
   }
 }

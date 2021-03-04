@@ -1,16 +1,14 @@
 import {BootMixin} from '@loopback/boot';
-import {addExtension, ApplicationConfig, CoreTags, createBindingFromClass} from '@loopback/core';
+import {addExtension, ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
-import {AuthenticationBindings, AuthenticationComponent,} from '@loopback/authentication';
-import {jwtAuthStrategy, JWTSpecEnhancer} from './auth/jwt.strategy';
-import {JWT_DEFAULT_OPTIONS} from './auth/jwt.options';
+import {AuthenticationBindings, AuthenticationComponent} from '@loopback/authentication';
+import {JWTAuthStrategyProvider, JWTSpecEnhancer} from './auth/jwt.strategy';
 import express from 'express';
-import cookieParser from 'cookie-parser';
 import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
 import {
   AuthorizationBindings,
@@ -19,11 +17,9 @@ import {
   AuthorizationOptions,
   AuthorizationTags,
 } from '@loopback/authorization';
-import {AuthorizationProvider} from './auth/authorizator.provider';
-import {JWTAuthenticationStrategyBindings, OpenIdConnectAuthenticationStrategyBindings} from "./services";
-import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from "./auth/open-id-connect.options";
-
-
+import {AuthorizationProvider} from './auth/authorizer.provider';
+import { OpenIdConnectAuthenticationStrategyBindings} from './services';
+import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
 
 export {ApplicationConfig};
 
@@ -34,6 +30,9 @@ export class BackplaneApplication extends BootMixin(
     super(options);
     this.add(createBindingFromClass(JWTSpecEnhancer));
     this.add(createBindingFromClass(OpenIdSpecEnhancer));
+
+    this.bind('config.secrets').to(options.secrets);
+    this.bind('config.rest.key').to(options.rest.key);
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -48,19 +47,19 @@ export class BackplaneApplication extends BootMixin(
     this.component(RestExplorerComponent);
 
     this.expressMiddleware(express.json);
-    this.expressMiddleware(express.urlencoded);
-    this.expressMiddleware(cookieParser);
+    this.expressMiddleware(express.urlencoded, {extended: false});
 
     // AUTH
     this.component(AuthenticationComponent);
-    this.bind(JWTAuthenticationStrategyBindings.DEFAULT_OPTIONS).to(JWT_DEFAULT_OPTIONS);
-    this
-      .bind(JWTAuthenticationStrategyBindings.STRATEGY)
-      .to(jwtAuthStrategy)
-      .tag({
-        [CoreTags.EXTENSION_FOR]:
+    addExtension(
+      this,
+      AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      JWTAuthStrategyProvider,
+      {
+        namespace:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      });
+      },
+    );
 
     // WellKnown configuration url
     this.bind(OpenIdConnectAuthenticationStrategyBindings.WELL_KNOWN_URL).to(OPEN_ID_WELL_KNOWN_URL);

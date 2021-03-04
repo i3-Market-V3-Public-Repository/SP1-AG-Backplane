@@ -1,6 +1,5 @@
 import {BackplaneUserProfile, createUser, findById} from './users';
 import {AuthenticationBindings, AuthenticationMetadata, AuthenticationStrategy} from '@loopback/authentication';
-import {UserProfile} from '@loopback/security';
 import {
   asSpecEnhancer,
   mergeSecuritySchemeToSpec,
@@ -31,7 +30,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
   ) {
   }
 
-  async authenticate(request: Request): Promise<UserProfile | RedirectRoute | undefined> {
+  async authenticate(request: Request): Promise<BackplaneUserProfile | RedirectRoute | undefined> {
     await this.processOptions();
     console.log('Test');
     console.log(this.options.isLoginEndpoint);
@@ -51,7 +50,7 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     return new RedirectRoute(request.path, authUrl, 302);
   }
 
-  private async authenticateCallback(request: Request): Promise<UserProfile | undefined> {
+  private async authenticateCallback(request: Request): Promise<BackplaneUserProfile | undefined> {
     const params = this.client.callbackParams(request);
     const tokenSet = await this.client.callback(this.client.metadata.redirect_uris![0], params);
 
@@ -97,12 +96,12 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
   }
 
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
+    console.log('Value OIDC');
     if (!this.strategy) {
       const issuer = await Issuer.discover(this.wellKnownURL);
       const client = new issuer.Client(this.openIdMetadata,
       );
       this.strategy = new OpenIdConnectAuthenticationStrategy(client, this.getMetaData);
-      console.log('New strategy created');
     }
     return this.strategy;
   }

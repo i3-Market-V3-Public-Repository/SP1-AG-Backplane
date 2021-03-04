@@ -1,9 +1,7 @@
 import {UserProfile} from '@loopback/security';
 import {User} from '../models';
 
-export interface BackplaneUserProfile extends UserProfile {
-  id: string;
-  scope: string;
+export interface BackplaneUserProfile extends UserProfile, User {
 }
 
 const users: Map<string, User> = new Map();
@@ -34,5 +32,4 @@ export function updateUser(id: string, scope: string): User {
   }
   user.scope = scope;
   return Object.assign({}, user);
-
 }
