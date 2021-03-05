@@ -78,7 +78,7 @@ export class HelloController {
         jwt: [],
       },
       {
-        openidConnect: [],
+        openIdConnect: [],
       },
     ],
     operationId: 'HelloController.helloAuthenticated',
@@ -120,7 +120,7 @@ export class HelloController {
         jwt: [],
       },
       {
-        openidConnect: [
+        openIdConnect: [
           'consumer',
         ],
       },
@@ -164,7 +164,7 @@ export class HelloController {
         jwt: [],
       },
       {
-        openidConnect: [
+        openIdConnect: [
           'provider',
         ],
       },
