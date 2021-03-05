@@ -14,8 +14,8 @@ import {Client, ClientMetadata, Issuer} from 'openid-client';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {AuthenticationStrategyOptions} from './auth.options';
 
-export const OPENID_STRATEGY_NAME = 'openId';
-export const OPENID_SECURITY_SCHEMA = {openId: []};
+export const OPENID_STRATEGY_NAME = 'openIdConnect';
+export const OPENID_SECURITY_SCHEMA = {openIdConnect: []};
 
 export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrategy {
   name = OPENID_STRATEGY_NAME;
