@@ -6,6 +6,7 @@ import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-conn
 import {BackplaneUserProfile} from '../auth/users';
 import {JWT_AUD, JWT_ISS} from '../auth/jwt.options';
 import * as jwt from 'jsonwebtoken';
+import {User} from '../models';
 
 export class AuthController {
   constructor(@inject('config.rest.key') private key: string | Buffer,) {
@@ -38,8 +39,8 @@ export class AuthController {
   })
   async whoAmI(
     @inject(AuthenticationBindings.CURRENT_USER)
-      currentUserProfile: BackplaneUserProfile,
-  ): Promise<BackplaneUserProfile> {
+      currentUserProfile: User,
+  ): Promise<User> {
     return currentUserProfile;
   }
 

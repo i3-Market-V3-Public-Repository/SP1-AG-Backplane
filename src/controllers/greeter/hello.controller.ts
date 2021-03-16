@@ -1,10 +1,12 @@
 import {HelloService, HelloServiceProvider} from '../../services';
-import {inject, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
 import {JWT_STRATEGY_NAME} from '../../auth/jwt.strategy';
 import {SecurityBindings} from '@loopback/security';
 import {BackplaneUserProfile} from '../../auth/users';
+import {Request, RestBindings} from '@loopback/rest';
+import {inject} from '@loopback/core';
 import {sign} from 'jsonwebtoken';
 import {api, operation, param} from '@loopback/rest';
 import {HelloResponse} from '../../models';
@@ -17,6 +19,33 @@ import {HelloResponse} from '../../models';
 @api({
   components: {
     schemas: {
+      FarewellResponse: {
+        type: 'object',
+        title: 'FarewellResponse',
+        properties: {
+          farewell: {
+            type: 'string',
+          },
+          date: {
+            type: 'string',
+          },
+          url: {
+            type: 'string',
+          },
+        },
+      },
+      FarewellRequestBody: {
+        type: 'object',
+        title: 'FarewellRequestBody',
+        properties: {
+          name: {
+            type: 'string',
+          },
+          age: {
+            type: 'number',
+          },
+        },
+      },
       HelloResponse: {
         type: 'object',
         title: 'HelloResponse',
@@ -37,15 +66,19 @@ import {HelloResponse} from '../../models';
       jwt: {
         type: 'apiKey',
         in: 'header',
-        name: 'user',
+        name: 'backplane-authorization',
       },
     },
   },
   paths: {},
 })
 export class HelloController {
-  constructor(@inject('config.secrets') private secrets: {[service: string]: string},
-              @service(HelloServiceProvider) public helloService: HelloService) {
+  private readonly secret: string;
+
+  constructor(@service(HelloServiceProvider) public helloService: HelloService,
+              @inject(RestBindings.Http.REQUEST) private request: Request,
+              @inject('config.secrets') private secrets: {[service: string]: string}) {
+    this.secret = this.secrets['greeter'];
   }
 
   /**
@@ -72,22 +105,22 @@ export class HelloController {
         },
       },
     },
-    parameters: [],
     security: [
       {
         jwt: [],
       },
       {
-        openidConnect: [],
+        openIdConnect: [],
       },
     ],
     operationId: 'HelloController.helloAuthenticated',
+    parameters: [],
   })
   @authenticate(JWT_STRATEGY_NAME)
   async helloAuthenticated(@inject(SecurityBindings.USER) user: BackplaneUserProfile): Promise<HelloResponse> {
-    console.log('helloAuthenticated');
-    const userJwt = sign(user, this.secrets.greeter);
-    return this.helloService.helloAuthenticated(userJwt);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.helloService.helloAuthenticated(backplaneAuthorization, backplaneToken);
   }
 
   /**
@@ -114,24 +147,25 @@ export class HelloController {
         },
       },
     },
-    parameters: [],
     security: [
       {
         jwt: [],
       },
       {
-        openidConnect: [
+        openIdConnect: [
           'consumer',
         ],
       },
     ],
     operationId: 'HelloController.helloConsumer',
+    parameters: [],
   })
   @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['consumer']})
   async helloConsumer(@inject(SecurityBindings.USER) user: BackplaneUserProfile): Promise<HelloResponse> {
-    const userJwt = sign(user, this.secrets.greeter);
-    return this.helloService.helloConsumer(userJwt);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.helloService.helloConsumer(backplaneAuthorization, backplaneToken);
   }
 
   /**
@@ -158,24 +192,25 @@ export class HelloController {
         },
       },
     },
-    parameters: [],
     security: [
       {
         jwt: [],
       },
       {
-        openidConnect: [
+        openIdConnect: [
           'provider',
         ],
       },
     ],
     operationId: 'HelloController.helloProvider',
+    parameters: [],
   })
   @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['provider']})
   async helloProvider(@inject(SecurityBindings.USER) user: BackplaneUserProfile): Promise<HelloResponse> {
-    const userJwt = sign(user, this.secrets.greeter);
-    return this.helloService.helloProvider(userJwt);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.helloService.helloProvider(backplaneAuthorization, backplaneToken);
   }
 
   /**

@@ -10,7 +10,7 @@ export class User extends Model {
   id: string;
 
   @property({
-    type: 'scope',
+    type: 'string',
     required: true,
   })
   scope: string;

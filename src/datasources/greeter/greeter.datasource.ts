@@ -18,7 +18,7 @@ export class GreeterDataSource extends juggler.DataSource
 
   constructor(
     @inject('datasources.config.greeter', {optional: true})
-      dsConfig: object = config,
+    dsConfig: object = config,
   ) {
     super({transformResponse, ...dsConfig});
   }
