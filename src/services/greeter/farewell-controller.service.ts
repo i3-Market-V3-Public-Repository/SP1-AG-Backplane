@@ -11,39 +11,39 @@ import {FarewellResponse} from '../../models';
  */
 export interface FarewellService {
   /**
-   * @param backplaneUser 
-   * @param authorization 
+   * @param backplaneAuthorization 
+   * @param backplaneToken 
    * @param _requestBody Farewell Request Body
    * @returns Farewell Response
    */
-  farewellBody(backplaneUser: string, authorization: string, _requestBody: FarewellRequestBody): Promise<FarewellResponse>;
+  farewellBody(backplaneAuthorization: string, backplaneToken: string, _requestBody: FarewellRequestBody): Promise<FarewellResponse>;
 
   /**
-   * @param backplaneUser 
-   * @param authorization 
+   * @param backplaneAuthorization 
+   * @param backplaneToken 
    * @param name 
    * @param age 
    * @returns Farewell Response
    */
-  farewellHeaderParams(backplaneUser: string, authorization: string, name: string, age: number | undefined): Promise<FarewellResponse>;
+  farewellHeaderParams(backplaneAuthorization: string, backplaneToken: string, name: string, age: number | undefined): Promise<FarewellResponse>;
 
   /**
-   * @param backplaneUser 
-   * @param authorization 
+   * @param backplaneAuthorization 
+   * @param backplaneToken 
    * @param name 
    * @param age 
    * @returns Farewell Response
    */
-  farewellPathParams(backplaneUser: string, authorization: string, name: string, age: number): Promise<FarewellResponse>;
+  farewellPathParams(backplaneAuthorization: string, backplaneToken: string, name: string, age: number): Promise<FarewellResponse>;
 
   /**
-   * @param backplaneUser 
-   * @param authorization 
+   * @param backplaneAuthorization 
+   * @param backplaneToken 
    * @param name 
    * @param age 
    * @returns Farewell Response
    */
-  farewellQueryParams(backplaneUser: string, authorization: string, name: string, age: number | undefined): Promise<FarewellResponse>;
+  farewellQueryParams(backplaneAuthorization: string, backplaneToken: string, name: string, age: number | undefined): Promise<FarewellResponse>;
 
 }
 

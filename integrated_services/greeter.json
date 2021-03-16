@@ -48,12 +48,12 @@
         "operationId": "FarewellController.farewellBody",
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           }
@@ -89,12 +89,12 @@
         ],
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           },
@@ -146,12 +146,12 @@
         ],
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           },
@@ -204,12 +204,12 @@
         ],
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           },
@@ -253,18 +253,21 @@
         },
         "security": [
           {
+            "jwt": []
+          },
+          {
             "openIdConnect": []
           }
         ],
         "operationId": "HelloController.helloAuthenticated",
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           }
@@ -292,6 +295,9 @@
         },
         "security": [
           {
+            "jwt": []
+          },
+          {
             "openIdConnect": [
               "consumer"
             ]
@@ -300,12 +306,12 @@
         "operationId": "HelloController.helloConsumer",
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           }
@@ -333,6 +339,9 @@
         },
         "security": [
           {
+            "jwt": []
+          },
+          {
             "openIdConnect": [
               "provider"
             ]
@@ -341,12 +350,12 @@
         "operationId": "HelloController.helloProvider",
         "parameters": [
           {
-            "name": "backplane-user",
+            "name": "backplane-authorization",
             "in": "header",
             "required": true
           },
           {
-            "name": "authorization",
+            "name": "backplane-token",
             "in": "header",
             "required": true
           }
@@ -440,7 +449,7 @@
       "jwt": {
         "type": "apiKey",
         "in": "header",
-        "name": "user"
+        "name": "backplane-authorization"
       }
     }
   }

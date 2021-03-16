@@ -2,7 +2,7 @@ import {FarewellService, FarewellServiceProvider} from '../../services';
 import {service} from '@loopback/core';
 import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
-import {JWT_STRATEGY_NAME, JWT_SECURITY_SCHEMA} from '../../auth/jwt.strategy';
+import {JWT_STRATEGY_NAME} from '../../auth/jwt.strategy';
 import {SecurityBindings} from '@loopback/security';
 import {BackplaneUserProfile} from '../../auth/users';
 import {Request, RestBindings} from '@loopback/rest';
@@ -67,7 +67,7 @@ import {FarewellResponse} from '../../models';
       jwt: {
         type: 'apiKey',
         in: 'header',
-        name: 'user',
+        name: 'backplane-authorization',
       },
     },
   },
@@ -109,7 +109,6 @@ export class FarewellController {
       },
     },
     security: [
-      JWT_SECURITY_SCHEMA,
       {
         openIdConnect: [],
       },
@@ -138,9 +137,9 @@ export class FarewellController {
       },
     },
   }) _requestBody: FarewellRequestBody): Promise<FarewellResponse> {
-    const userJwt = sign(user, this.secret);
-    const authorization = this.request.headers['authorization']!;
-    return this.farewellService.farewellBody(userJwt, authorization, _requestBody);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.farewellService.farewellBody(backplaneAuthorization, backplaneToken, _requestBody);
   }
 
   /**
@@ -171,7 +170,6 @@ export class FarewellController {
       },
     },
     security: [
-      JWT_SECURITY_SCHEMA,
       {
         openIdConnect: [
           'params',
@@ -213,9 +211,9 @@ export class FarewellController {
       type: 'number',
     },
   }) age: number | undefined): Promise<FarewellResponse> {
-    const userJwt = sign(user, this.secret);
-    const authorization = this.request.headers['authorization']!;
-    return this.farewellService.farewellHeaderParams(userJwt, authorization, name, age);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.farewellService.farewellHeaderParams(backplaneAuthorization, backplaneToken, name, age);
   }
 
   /**
@@ -246,7 +244,6 @@ export class FarewellController {
       },
     },
     security: [
-      JWT_SECURITY_SCHEMA,
       {
         openIdConnect: [
           'params',
@@ -290,9 +287,9 @@ export class FarewellController {
     },
     required: true,
   }) age: number): Promise<FarewellResponse> {
-    const userJwt = sign(user, this.secret);
-    const authorization = this.request.headers['authorization']!;
-    return this.farewellService.farewellPathParams(userJwt, authorization, name, age);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.farewellService.farewellPathParams(backplaneAuthorization, backplaneToken, name, age);
   }
 
   /**
@@ -323,7 +320,6 @@ export class FarewellController {
       },
     },
     security: [
-      JWT_SECURITY_SCHEMA,
       {
         openIdConnect: [
           'params',
@@ -365,9 +361,9 @@ export class FarewellController {
       type: 'number',
     },
   }) age: number | undefined): Promise<FarewellResponse> {
-    const userJwt = sign(user, this.secret);
-    const authorization = this.request.headers['authorization']!;
-    return this.farewellService.farewellQueryParams(userJwt, authorization, name, age);
+    const backplaneAuthorization = `${sign(user, this.secret)}`;
+    const backplaneToken = this.request.headers['authorization']!;
+    return this.farewellService.farewellQueryParams(backplaneAuthorization, backplaneToken, name, age);
   }
 
 }
