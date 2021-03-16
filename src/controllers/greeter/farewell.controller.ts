@@ -75,6 +75,7 @@ import {FarewellResponse} from '../../models';
 })
 export class FarewellController {
   private readonly secret: string;
+
   constructor(@service(FarewellServiceProvider) public farewellService: FarewellService,
               @inject(RestBindings.Http.REQUEST) private request: Request,
               @inject('config.secrets') private secrets: {[service: string]: string}) {
@@ -84,36 +85,50 @@ export class FarewellController {
   /**
    *
    *
-   * @param user 
+   * @param user
    * @param _requestBody Farewell Request Body
    * @returns Farewell Response
    */
   @operation('post', '/farewell/body', {
-  'x-controller-name': 'FarewellController',
-  'x-operation-name': 'farewellBody',
-  tags: [
-    'FarewellController',
-  ],
-  responses: {
-    '200': {
-      description: 'Farewell Response',
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            $ref: '#/components/schemas/FarewellResponse',
+    'x-controller-name': 'FarewellController',
+    'x-operation-name': 'farewellBody',
+    tags: [
+      'FarewellController',
+    ],
+    responses: {
+      '200': {
+        description: 'Farewell Response',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/FarewellResponse',
+            },
           },
         },
       },
     },
-  },
-  security: [
-    JWT_SECURITY_SCHEMA,
-    {
-      openIdConnect: [],
+    security: [
+      JWT_SECURITY_SCHEMA,
+      {
+        openIdConnect: [],
+      },
+    ],
+    requestBody: {
+      description: 'Farewell Request Body',
+      content: {
+        'application/json': {
+          schema: {
+            $ref: '#/components/schemas/FarewellRequestBody',
+          },
+        },
+      },
     },
-  ],
-  requestBody: {
+    operationId: 'FarewellController.farewellBody',
+    parameters: [],
+  })
+  @authenticate(JWT_STRATEGY_NAME)
+  async farewellBody(@inject(SecurityBindings.USER) user: BackplaneUserProfile, @requestBody({
     description: 'Farewell Request Body',
     content: {
       'application/json': {
@@ -122,252 +137,237 @@ export class FarewellController {
         },
       },
     },
-  },
-  operationId: 'FarewellController.farewellBody',
-  parameters: [
-],
-})
-  @authenticate(JWT_STRATEGY_NAME)
-  async farewellBody(@inject(SecurityBindings.USER) user: BackplaneUserProfile,  @requestBody({
-  description: 'Farewell Request Body',
-  content: {
-    'application/json': {
-      schema: {
-        $ref: '#/components/schemas/FarewellRequestBody',
-      },
-    },
-  },
-}) _requestBody: FarewellRequestBody): Promise<FarewellResponse> {
+  }) _requestBody: FarewellRequestBody): Promise<FarewellResponse> {
     const userJwt = sign(user, this.secret);
-const authorization = this.request.headers['authorization']!;
-return this.farewellService.farewellBody(userJwt, authorization, _requestBody)
+    const authorization = this.request.headers['authorization']!;
+    return this.farewellService.farewellBody(userJwt, authorization, _requestBody);
   }
 
   /**
    *
    *
-   * @param user 
-   * @param name 
-   * @param age 
+   * @param user
+   * @param name
+   * @param age
    * @returns Farewell Response
    */
   @operation('get', '/farewell/headerParams', {
-  'x-controller-name': 'FarewellController',
-  'x-operation-name': 'farewellHeaderParams',
-  tags: [
-    'FarewellController',
-  ],
-  responses: {
-    '200': {
-      description: 'Farewell Response',
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            $ref: '#/components/schemas/FarewellResponse',
+    'x-controller-name': 'FarewellController',
+    'x-operation-name': 'farewellHeaderParams',
+    tags: [
+      'FarewellController',
+    ],
+    responses: {
+      '200': {
+        description: 'Farewell Response',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/FarewellResponse',
+            },
           },
         },
       },
     },
-  },
-  security: [
-    JWT_SECURITY_SCHEMA,
-    {
-      openIdConnect: [
-        'params',
-      ],
-    },
-  ],
-  parameters: [
-{
-      name: 'name',
-      in: 'header',
-      schema: {
-        type: 'string',
+    security: [
+      JWT_SECURITY_SCHEMA,
+      {
+        openIdConnect: [
+          'params',
+        ],
       },
-      required: true,
-    },
-    {
-      name: 'age',
-      in: 'header',
-      schema: {
-        type: 'number',
+    ],
+    parameters: [
+      {
+        name: 'name',
+        in: 'header',
+        schema: {
+          type: 'string',
+        },
+        required: true,
       },
-    },
-  ],
-  operationId: 'FarewellController.farewellHeaderParams',
-})
+      {
+        name: 'age',
+        in: 'header',
+        schema: {
+          type: 'number',
+        },
+      },
+    ],
+    operationId: 'FarewellController.farewellHeaderParams',
+  })
   @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['params']})
-  async farewellHeaderParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile,  @param({
-  name: 'name',
-  in: 'header',
-  schema: {
-    type: 'string',
-  },
-  required: true,
-}) name: string, @param({
-  name: 'age',
-  in: 'header',
-  schema: {
-    type: 'number',
-  },
-}) age: number | undefined): Promise<FarewellResponse> {
+  async farewellHeaderParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile, @param({
+    name: 'name',
+    in: 'header',
+    schema: {
+      type: 'string',
+    },
+    required: true,
+  }) name: string, @param({
+    name: 'age',
+    in: 'header',
+    schema: {
+      type: 'number',
+    },
+  }) age: number | undefined): Promise<FarewellResponse> {
     const userJwt = sign(user, this.secret);
-const authorization = this.request.headers['authorization']!;
-return this.farewellService.farewellHeaderParams(userJwt, authorization, name, age)
+    const authorization = this.request.headers['authorization']!;
+    return this.farewellService.farewellHeaderParams(userJwt, authorization, name, age);
   }
 
   /**
    *
    *
-   * @param user 
-   * @param name 
-   * @param age 
+   * @param user
+   * @param name
+   * @param age
    * @returns Farewell Response
    */
   @operation('get', '/farewell/pathParams/{name}/{age}', {
-  'x-controller-name': 'FarewellController',
-  'x-operation-name': 'farewellPathParams',
-  tags: [
-    'FarewellController',
-  ],
-  responses: {
-    '200': {
-      description: 'Farewell Response',
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            $ref: '#/components/schemas/FarewellResponse',
+    'x-controller-name': 'FarewellController',
+    'x-operation-name': 'farewellPathParams',
+    tags: [
+      'FarewellController',
+    ],
+    responses: {
+      '200': {
+        description: 'Farewell Response',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/FarewellResponse',
+            },
           },
         },
       },
     },
-  },
-  security: [
-    JWT_SECURITY_SCHEMA,
-    {
-      openIdConnect: [
-        'params',
-      ],
-    },
-  ],
-  parameters: [
-{
-      name: 'name',
-      in: 'path',
-      schema: {
-        type: 'string',
+    security: [
+      JWT_SECURITY_SCHEMA,
+      {
+        openIdConnect: [
+          'params',
+        ],
       },
-      required: true,
-    },
-    {
-      name: 'age',
-      in: 'path',
-      schema: {
-        type: 'number',
+    ],
+    parameters: [
+      {
+        name: 'name',
+        in: 'path',
+        schema: {
+          type: 'string',
+        },
+        required: true,
       },
-      required: true,
-    },
-  ],
-  operationId: 'FarewellController.farewellPathParams',
-})
+      {
+        name: 'age',
+        in: 'path',
+        schema: {
+          type: 'number',
+        },
+        required: true,
+      },
+    ],
+    operationId: 'FarewellController.farewellPathParams',
+  })
   @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['params']})
-  async farewellPathParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile,  @param({
-  name: 'name',
-  in: 'path',
-  schema: {
-    type: 'string',
-  },
-  required: true,
-}) name: string, @param({
-  name: 'age',
-  in: 'path',
-  schema: {
-    type: 'number',
-  },
-  required: true,
-}) age: number): Promise<FarewellResponse> {
+  async farewellPathParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile, @param({
+    name: 'name',
+    in: 'path',
+    schema: {
+      type: 'string',
+    },
+    required: true,
+  }) name: string, @param({
+    name: 'age',
+    in: 'path',
+    schema: {
+      type: 'number',
+    },
+    required: true,
+  }) age: number): Promise<FarewellResponse> {
     const userJwt = sign(user, this.secret);
-const authorization = this.request.headers['authorization']!;
-return this.farewellService.farewellPathParams(userJwt, authorization, name, age)
+    const authorization = this.request.headers['authorization']!;
+    return this.farewellService.farewellPathParams(userJwt, authorization, name, age);
   }
 
   /**
    *
    *
-   * @param user 
-   * @param name 
-   * @param age 
+   * @param user
+   * @param name
+   * @param age
    * @returns Farewell Response
    */
   @operation('get', '/farewell/queryParams', {
-  'x-controller-name': 'FarewellController',
-  'x-operation-name': 'farewellQueryParams',
-  tags: [
-    'FarewellController',
-  ],
-  responses: {
-    '200': {
-      description: 'Farewell Response',
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            $ref: '#/components/schemas/FarewellResponse',
+    'x-controller-name': 'FarewellController',
+    'x-operation-name': 'farewellQueryParams',
+    tags: [
+      'FarewellController',
+    ],
+    responses: {
+      '200': {
+        description: 'Farewell Response',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/FarewellResponse',
+            },
           },
         },
       },
     },
-  },
-  security: [
-    JWT_SECURITY_SCHEMA,
-    {
-      openIdConnect: [
-        'params',
-      ],
-    },
-  ],
-  parameters: [
-{
-      name: 'name',
-      in: 'query',
-      schema: {
-        type: 'string',
+    security: [
+      JWT_SECURITY_SCHEMA,
+      {
+        openIdConnect: [
+          'params',
+        ],
       },
-      required: true,
-    },
-    {
-      name: 'age',
-      in: 'query',
-      schema: {
-        type: 'number',
+    ],
+    parameters: [
+      {
+        name: 'name',
+        in: 'query',
+        schema: {
+          type: 'string',
+        },
+        required: true,
       },
-    },
-  ],
-  operationId: 'FarewellController.farewellQueryParams',
-})
+      {
+        name: 'age',
+        in: 'query',
+        schema: {
+          type: 'number',
+        },
+      },
+    ],
+    operationId: 'FarewellController.farewellQueryParams',
+  })
   @authenticate(JWT_STRATEGY_NAME)
   @authorize({scopes: ['params']})
-  async farewellQueryParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile,  @param({
-  name: 'name',
-  in: 'query',
-  schema: {
-    type: 'string',
-  },
-  required: true,
-}) name: string, @param({
-  name: 'age',
-  in: 'query',
-  schema: {
-    type: 'number',
-  },
-}) age: number | undefined): Promise<FarewellResponse> {
+  async farewellQueryParams(@inject(SecurityBindings.USER) user: BackplaneUserProfile, @param({
+    name: 'name',
+    in: 'query',
+    schema: {
+      type: 'string',
+    },
+    required: true,
+  }) name: string, @param({
+    name: 'age',
+    in: 'query',
+    schema: {
+      type: 'number',
+    },
+  }) age: number | undefined): Promise<FarewellResponse> {
     const userJwt = sign(user, this.secret);
-const authorization = this.request.headers['authorization']!;
-return this.farewellService.farewellQueryParams(userJwt, authorization, name, age)
+    const authorization = this.request.headers['authorization']!;
+    return this.farewellService.farewellQueryParams(userJwt, authorization, name, age);
   }
 
 }
