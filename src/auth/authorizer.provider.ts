@@ -17,8 +17,9 @@ export class AuthorizationProvider implements Provider<Authorizer> {
   ) {
     const user = context.principals[0] as BackplaneUserProfile;
     const scopes = metadata.scopes ?? [];
+    const userScopes = user.scope.split(' ');
     for (const scope of scopes) {
-      if (!user.scope.split(' ').includes(scope))
+      if (!userScopes.includes(scope))
         return AuthorizationDecision.DENY;
     }
     return AuthorizationDecision.ALLOW;

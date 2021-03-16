@@ -10,22 +10,25 @@ import {HelloResponse} from '../../models';
  */
 export interface HelloService {
   /**
-   * @param user 
+   * @param backplaneUser 
+   * @param authorization 
    * @returns Hello Response
    */
-  helloAuthenticated(user: string | undefined): Promise<HelloResponse>;
+  helloAuthenticated(backplaneUser: string, authorization: string): Promise<HelloResponse>;
 
   /**
-   * @param user 
+   * @param backplaneUser 
+   * @param authorization 
    * @returns Hello Response
    */
-  helloConsumer(user: string | undefined): Promise<HelloResponse>;
+  helloConsumer(backplaneUser: string, authorization: string): Promise<HelloResponse>;
 
   /**
-   * @param user 
+   * @param backplaneUser 
+   * @param authorization 
    * @returns Hello Response
    */
-  helloProvider(user: string | undefined): Promise<HelloResponse>;
+  helloProvider(backplaneUser: string, authorization: string): Promise<HelloResponse>;
 
   /**
    * @param name 
