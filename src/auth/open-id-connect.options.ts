@@ -4,8 +4,8 @@ import {ClientMetadata} from "openid-client";
 
 
 export const OPEN_ID_METADATA:ClientMetadata = {
-    client_id: process.env.CLIENT_ID as string,
-    client_secret: process.env.CLIENT_SECRET as string,
+    client_id: process.env.OIDC_CLIENT_ID as string,
+    client_secret: process.env.OIDC_CLIENT_SECRET as string,
     redirect_uris: [`${process.env.PUBLIC_URI}/auth/openid/callback`],
     application_type: 'web',
     grant_types: ['authorization_code'],
@@ -15,7 +15,7 @@ export const OPEN_ID_METADATA:ClientMetadata = {
     scope: 'openid vc'
 }
 
-export const OPEN_ID_WELL_KNOWN_URL = `${process.env.PROVIDER_URI}/oidc/.well-known/openid-configuration`;
+export const OPEN_ID_WELL_KNOWN_URL = `${process.env.OIDC_PROVIDER_URI}/oidc/.well-known/openid-configuration`;
 
 
 

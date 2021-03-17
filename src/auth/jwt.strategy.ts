@@ -29,7 +29,6 @@ export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy>
   }
 
   value(): AuthenticationStrategy {
-    console.log('Value JWT');
     const jwtStrategy = new Strategy({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: this.key,

@@ -73,8 +73,8 @@ To add more scopes or modify the used configurations, modify the constants found
 ```typescript
 // OpenId configuration
 export const OPEN_ID_METADATA:ClientMetadata = {
-    client_id: process.env.CLIENT_ID as string,
-    client_secret: process.env.CLIENT_SECRET as string,
+    client_id: process.env.OIDC_CLIENT_ID as string,
+    client_secret: process.env.OIDC_CLIENT_SECRET as string,
     redirect_uris: [`${getPublicUri()}/auth/openid/callback`],
     application_type: 'web',
     grant_types: ['authorization_code'],
@@ -109,9 +109,9 @@ The created realm has no users, so some will have to be created using the [Keycl
 
 ## Environment Variables
 ```shell
-CLIENT_ID = <client_id_openid>
-CLIENT_SECRET = <client_secret_openid>
+OIDC_CLIENT_ID = <client_id_openid>
+OIDC_CLIENT_SECRET = <client_secret_openid>
 PUBLIC_URI = https://localhost:3000 (optional)
 PORT = 3000 (optional)
-PROVIDER_URI = https://oidc.i3m.gold.upc.edu
+OIDC_PROVIDER_URI = https://oidc.i3m.gold.upc.edu
 ```

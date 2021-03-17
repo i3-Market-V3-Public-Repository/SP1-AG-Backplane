@@ -96,7 +96,6 @@ export class OpenIdConnectProvider implements Provider<OpenIdConnectAuthenticati
   }
 
   async value(): Promise<OpenIdConnectAuthenticationStrategy> {
-    console.log('Value OIDC');
     if (!this.strategy) {
       const issuer = await Issuer.discover(this.wellKnownURL);
       const client = new issuer.Client(this.openIdMetadata,
