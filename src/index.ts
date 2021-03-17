@@ -18,10 +18,12 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
-  const cert = fs.readFileSync('./certificates/cert.crt');
-  const key = fs.readFileSync('./certificates/key.key');
+  const certificatesPath = process.env.CERTS_PATH ?? './certificates';
+  const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
+  const key = fs.readFileSync(`${certificatesPath}/key.key`);
+  const caCert = fs.readFileSync(`${certificatesPath}/ca-cert.crt`);
 
-  https.globalAgent.options.ca = fs.readFileSync('./certificates/ca-cert.crt');
+  https.globalAgent.options.ca = caCert;
   https.globalAgent.options.cert = cert;
   https.globalAgent.options.key = key;
   https.globalAgent.options.rejectUnauthorized = false;
@@ -38,7 +40,7 @@ if (require.main === module) {
       minVersion: 'TLSv1.3',
       key: key,
       cert: cert,
-      ca: fs.readFileSync('./certificates/ca-cert.crt'),
+      ca: caCert,
       rejectUnauthorized: false,
     },
     secrets: secrets

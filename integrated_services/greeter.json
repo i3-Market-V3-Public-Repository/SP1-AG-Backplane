@@ -397,7 +397,7 @@
   },
   "servers": [
     {
-      "url": "https://localhost:3333"
+      "url": "https://dakar.fib.upc.edu:3333"
     }
   ],
   "components": {

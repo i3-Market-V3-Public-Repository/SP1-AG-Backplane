@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  backplane:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+#      Change "./certificates" below for the path containing the certificates
+      - ./certificates:/certificates
