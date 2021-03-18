@@ -1,0 +1,17 @@
+build-docker:
+  stage: build
+  script:
+    - echo "Building..."
+    - echo "Docker built"
+
+push-artifact:
+  stage: build
+  script:
+    - echo "Pushing artifact..."
+    - echo "Artifact pushed"
+
+deploy-ansible:
+  stage: deploy
+  script:
+    - echo "Deploying..."
+    - echo "Deployed"
