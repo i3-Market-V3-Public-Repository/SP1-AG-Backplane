@@ -19,6 +19,7 @@ get-integrator:
   artifacts:
     paths:
       - bulk_integrator
+    expire_in: 10 mins
 
 get-env:
   stage: gather
@@ -27,7 +28,7 @@ get-env:
   artifacts:
     paths:
       - .env
-    expire_in: 1 day
+    expire_in: 10 mins
 
 get-subsystems-oas:
   stage: gather
@@ -36,11 +37,21 @@ get-subsystems-oas:
   artifacts:
     paths:
       - specs/
+    expire_in: 10 mins
 
 integrate-subsystems:
   stage: integrate
   script:
     - ./bulk_integrator . ./specs
+  artifacts:
+    untracked: true
+    paths:
+      - src/controllers/index.ts
+      - src/datasources/index.ts
+      - src/models/index.ts
+      - src/repositories/index.ts
+      - src/services/index.ts
+    expire_in: 10 mins
 
 build:
   stage: build
