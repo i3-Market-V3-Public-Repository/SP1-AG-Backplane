@@ -36,16 +36,10 @@ get-subsystems-oas:
     paths:
       - specs/
 
-debug:
-  stage: integrate
-  script:
-    - ls
-    - ls backplane-subsystems-oas
-
 integrate-subsystems:
   stage: integrate
   script:
-    - ./integrate . ./specs
+    - ./bulk_integrate . ./specs
 
 build:
   stage: build
