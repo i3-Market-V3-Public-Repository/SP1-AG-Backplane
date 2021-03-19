@@ -21,6 +21,7 @@ get-env:
   stage: gather
   image: curlimages/curl:latest
   script:
+    - echo "${ENV_FILE_URL}"
     - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${ENV_FILE_URL}"'
 
 get-subsystems-oas:
