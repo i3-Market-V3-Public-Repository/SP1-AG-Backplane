@@ -39,17 +39,11 @@ get-subsystems-oas:
 
 integrate-subsystems:
   stage: integrate
-  needs:
-    - get-integrator
-    - get-subsystems-oas
   script:
     - ./bulk_integrator . ./specs
 
 build:
   stage: build
-  needs:
-    - get-env
-    - integrate-subsystems
   image:
     name: docker/compose:latest
   services:
