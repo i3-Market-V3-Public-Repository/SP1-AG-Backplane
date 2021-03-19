@@ -58,10 +58,13 @@ build:
     name: docker/compose:latest
   services:
     - docker:dind
+  variables:
+    IMAGE_TAG: $CI_REGISTRY/group/project/backplane:latest
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker-compose build
-    - docker push backplane:latest
+    - docker tag backplane:latest $IMAGE_TAG
+    - docker push $IMAGE_TAG
 
 
 deploy-ansible:
