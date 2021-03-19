@@ -5,9 +5,9 @@ stages:
   - deploy
 
 variables:
-  INTEGRATOR_VERSION: "1.0.1"
+  INTEGRATOR_VERSION: "0.0.5"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
-  ENV_FILE_URL: "${CI_PROJECT_URL}/-/snippets/2092890/raw/master/.env"
+  ENV_FILE_URL: "${CI_API_V4_URL}/snippets/2092890/raw"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
 
 get-integrator:
