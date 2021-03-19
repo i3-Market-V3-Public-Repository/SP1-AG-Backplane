@@ -8,7 +8,6 @@ stages:
 variables:
   INTEGRATOR_VERSION: "0.0.5"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
-  ENV_FILE_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane/snippets/2092890.git"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
 
 get-integrator:
@@ -20,9 +19,7 @@ get-integrator:
 get-env:
   stage: gather
   script:
-    - git clone $ENV_FILE_URL ./env
-    - mv ./env/.env ./.env
-    - rm -rf ./env
+    - echo $BACKPLANE_ENV_FILE > .env
 
 get-subsystems-oas:
   stage: gather
