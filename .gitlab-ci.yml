@@ -15,16 +15,26 @@ get-integrator:
   image: curlimages/curl:latest
   script:
     - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
+  artifacts:
+    paths:
+      - bulk_integrator
 
 get-env:
   stage: gather
   script:
     - echo $BACKPLANE_ENV_FILE > .env
+  artifacts:
+    paths:
+      - .env
+    expire_in: 1 day
 
 get-subsystems-oas:
   stage: gather
   script:
     - git clone $OAS_REPO_URL ./specs
+  artifacts:
+    paths:
+      - specs/
 
 debug:
   stage: integrate
