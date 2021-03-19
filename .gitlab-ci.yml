@@ -15,6 +15,7 @@ get-integrator:
   image: curlimages/curl:latest
   script:
     - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
+    - chmod +x ./bulk_integrator
   artifacts:
     paths:
       - bulk_integrator
@@ -38,11 +39,17 @@ get-subsystems-oas:
 
 integrate-subsystems:
   stage: integrate
+  needs:
+    - get-integrator
+    - get-subsystems-oas
   script:
     - ./bulk_integrator . ./specs
 
 build:
   stage: build
+  needs:
+    - get-env
+    - integrate-subsystems
   image:
     name: docker/compose:latest
   services:
