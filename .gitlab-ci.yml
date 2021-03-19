@@ -61,7 +61,7 @@ build:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker-compose build
-    - docker-compose push backplane:latest
+    - docker push backplane:latest
 
 
 deploy-ansible:
