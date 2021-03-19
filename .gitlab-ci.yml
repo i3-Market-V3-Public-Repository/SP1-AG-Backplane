@@ -14,13 +14,13 @@ get-integrator:
   stage: gather
   image: curlimages/curl:latest
   script:
-    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" ${INTEGRATOR_URL}'
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
 
 get-env:
   stage: gather
   image: curlimages/curl:latest
   script:
-    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" ${ENV_FILE_URL}'
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${ENV_FILE_URL}"'
 
 get-subsystems-oas:
   stage: gather
