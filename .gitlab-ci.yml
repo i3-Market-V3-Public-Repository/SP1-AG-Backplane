@@ -1,17 +1,57 @@
-image:
-  name: docker/compose:latest
+stages:
+  - gather
+  - build
+  - publish
+  - deploy
 
-services:
-  - docker:dind
+variables:
+  INTEGRATOR_VERSION: "1.0.1"
+  INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
+  ENV_FILE_URL: "${CI_PROJECT_URL}/-/snippets/2092890/raw/master/.env"
+  OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
+
+get-integrator:
+  stage: gather
+  image: curlimages/curl:latest
+  script:
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" ${INTEGRATOR_URL}'
+
+get-env:
+  stage: gather
+  image: curlimages/curl:latest
+  script:
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" ${ENV_FILE_URL}'
+
+get-subsystems-oas:
+  stage: gather
+  script:
+    - git clone $OAS_REPO_URL
+
+integrate-subsystems:
+  stage: build
+  script:
+    - ls
+    - ls backplane-subsystems-oas
 
 build:
   stage: build
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  image:
+    name: docker/compose:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose build backplane
+
+publish:
+  stage: publish
+  image:
+    name: docker/compose:latest
+  services:
+    - docker:dind
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker-compose build backplane
     - docker-compose push backplane_backplane:latest
+
 
 deploy-ansible:
   stage: deploy
