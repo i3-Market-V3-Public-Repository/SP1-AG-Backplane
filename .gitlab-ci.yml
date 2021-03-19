@@ -39,7 +39,7 @@ get-subsystems-oas:
 integrate-subsystems:
   stage: integrate
   script:
-    - ./bulk_integrate . ./specs
+    - ./bulk_integrator . ./specs
 
 build:
   stage: build
