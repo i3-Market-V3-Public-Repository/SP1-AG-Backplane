@@ -1,5 +1,6 @@
 stages:
   - gather
+  - integrate
   - build
   - publish
   - deploy
@@ -28,7 +29,7 @@ get-subsystems-oas:
     - git clone $OAS_REPO_URL
 
 integrate-subsystems:
-  stage: build
+  stage: integrate
   script:
     - ls
     - ls backplane-subsystems-oas
