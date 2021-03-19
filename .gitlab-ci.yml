@@ -1,17 +1,75 @@
-build-docker:
-  stage: build
-  script:
-    - echo "Building..."
-    - echo "Docker built"
+stages:
+  - gather
+  - integrate
+  - build
+  # TODO: uncomment deploy stage
+#  - deploy
 
-push-artifact:
-  stage: build
-  script:
-    - echo "Pushing artifact..."
-    - echo "Artifact pushed"
+variables:
+  INTEGRATOR_VERSION: "0.0.6"
+  INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
+  OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
 
-deploy-ansible:
-  stage: deploy
+get-integrator:
+  stage: gather
+  image: curlimages/curl:latest
   script:
-    - echo "Deploying..."
-    - echo "Deployed"
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
+    - chmod +x ./bulk_integrator
+  artifacts:
+    paths:
+      - bulk_integrator
+    expire_in: 10 mins
+
+get-env:
+  stage: gather
+  script:
+    - echo $BACKPLANE_ENV_FILE > .env
+  artifacts:
+    paths:
+      - .env
+    expire_in: 10 mins
+
+get-subsystems-oas:
+  stage: gather
+  script:
+    - git clone $OAS_REPO_URL ./specs
+  artifacts:
+    paths:
+      - specs/
+    expire_in: 10 mins
+
+integrate-subsystems:
+  stage: integrate
+  script:
+    - ./bulk_integrator . ./specs
+  artifacts:
+    untracked: true
+    paths:
+      - src/controllers/index.ts
+      - src/datasources/index.ts
+      - src/models/index.ts
+      - src/repositories/index.ts
+      - src/services/index.ts
+    expire_in: 10 mins
+
+build:
+  stage: build
+  image:
+    name: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker-compose build
+    - docker tag backplane:latest $IMAGE_TAG
+    - docker push $IMAGE_TAG
+
+# TODO: trigger Ansible playbook automatically with gitLab webhooks
+#deploy-ansible:
+#  stage: deploy
+#  script:
+#    - echo "Deploying..."
+#    - echo "Deployed"
