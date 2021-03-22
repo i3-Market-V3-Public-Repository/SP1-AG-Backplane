@@ -32,15 +32,15 @@ get-env:
       - .env
     expire_in: 10 mins
 
-get-secrets:
-  stage: gather
-  image: curlimages/curl:latest
-  script:
-    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}" || true'
-  artifacts:
-    paths:
-      - .secrets.json
-    expire_in: 10 mins
+#get-secrets:
+#  stage: gather
+#  image: curlimages/curl:latest
+#  script:
+#    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}" || true'
+#  artifacts:
+#    paths:
+#      - .secrets.json
+#    expire_in: 10 mins
 
 get-subsystems-oas:
   stage: gather
@@ -86,7 +86,8 @@ build:
 update-secrets:
   stage: build
   script:
-    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
+    - ls
+#    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
 
 # TODO: trigger Ansible playbook automatically with gitLab webhooks
