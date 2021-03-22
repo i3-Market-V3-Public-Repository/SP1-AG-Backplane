@@ -9,6 +9,8 @@ variables:
   INTEGRATOR_VERSION: "0.0.6"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
+  SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
+
 
 get-integrator:
   stage: gather
@@ -30,6 +32,15 @@ get-env:
       - .env
     expire_in: 10 mins
 
+get-secrets:
+  stage: gather
+  script:
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
+  artifacts:
+    paths:
+      - .secrets.json
+    expire_in: 10 mins
+
 get-subsystems-oas:
   stage: gather
   script:
@@ -38,6 +49,7 @@ get-subsystems-oas:
     paths:
       - specs/
     expire_in: 10 mins
+
 
 integrate-subsystems:
   stage: integrate
@@ -53,6 +65,7 @@ integrate-subsystems:
       - src/services/index.ts
     expire_in: 10 mins
 
+
 build:
   stage: build
   image:
@@ -66,6 +79,13 @@ build:
     - docker-compose build
     - docker tag backplane:latest $IMAGE_TAG
     - docker push $IMAGE_TAG
+
+
+update-secrets:
+  stage: build
+  script:
+    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
 
 # TODO: trigger Ansible playbook automatically with gitLab webhooks
 #deploy-ansible:

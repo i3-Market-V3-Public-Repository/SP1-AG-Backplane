@@ -17,7 +17,7 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
-  const secretsPath = process.env.SECRETS_PATH ?? '/.secrets.json';
+  const secretsPath = process.env.SECRETS_PATH ?? './.secrets.json';
   const secrets = JSON.parse(fs.readFileSync(secretsPath).toString());
 
   const certificatesPath = process.env.CERTS_PATH ?? './certificates';
