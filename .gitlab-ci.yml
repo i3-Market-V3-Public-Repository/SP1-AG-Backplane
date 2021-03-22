@@ -86,7 +86,7 @@ build:
 update-secrets:
   stage: build
   script:
-    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
+    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
 
 # TODO: trigger Ansible playbook automatically with gitLab webhooks
