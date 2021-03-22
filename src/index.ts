@@ -1,7 +1,6 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
 import * as https from 'https';
 import * as fs from 'fs';
-import * as secrets from './secrets.json'
 
 export * from './application';
 
@@ -18,6 +17,9 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
+  const secretsPath = process.env.SECRETS_PATH ?? '/.secrets.json';
+  const secrets = JSON.parse(fs.readFileSync(secretsPath).toString());
+
   const certificatesPath = process.env.CERTS_PATH ?? './certificates';
   const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
   const key = fs.readFileSync(`${certificatesPath}/key.key`);

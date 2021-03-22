@@ -11,4 +11,4 @@ services:
     volumes:
 #      Change "./certificates" below for the path containing the certificates
       - ./certificates:/certificates
-      - ./secrets.json:./secrets.json
+      - ./.secrets.json:/.secrets.json

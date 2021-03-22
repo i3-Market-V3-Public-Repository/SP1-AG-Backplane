@@ -67,4 +67,4 @@ typings/
 .vscode
 certificates
 
-src/secrets.json
+.secrets.json
