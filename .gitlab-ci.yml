@@ -35,7 +35,7 @@ get-env:
 get-secrets:
   stage: gather
   script:
-    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}" || true'
   artifacts:
     paths:
       - .secrets.json
