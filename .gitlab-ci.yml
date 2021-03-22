@@ -34,6 +34,7 @@ get-env:
 
 get-secrets:
   stage: gather
+  image: curlimages/curl:latest
   script:
     - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}" || true'
   artifacts:
@@ -63,6 +64,7 @@ integrate-subsystems:
       - src/models/index.ts
       - src/repositories/index.ts
       - src/services/index.ts
+      - .secrets.json
     expire_in: 10 mins
 
 
