@@ -2,14 +2,14 @@ stages:
   - gather
   - integrate
   - build
-  # TODO: uncomment deploy stage
-#  - deploy
+  - deploy
 
 variables:
   INTEGRATOR_VERSION: "0.0.7"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
+  ANSIBLE_JOB_URL: "http://95.211.3.249/api/v2/job_templates/13/launch/"
 
 
 get-integrator:
@@ -98,12 +98,11 @@ build:
 update-secrets:
   stage: build
   script:
-    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "${SECRETS_URL}"'
+    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "$SECRETS_URL"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "$SECRETS_URL"'
 
-# TODO: trigger Ansible playbook automatically with gitLab webhooks
-#deploy-ansible:
-#  stage: deploy
-#  script:
-#    - echo "Deploying..."
-#    - echo "Deployed"
+
+deploy-ansible:
+  stage: deploy
+  script:
+    - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_JOB_URL"'
