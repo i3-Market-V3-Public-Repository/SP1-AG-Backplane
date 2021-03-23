@@ -54,6 +54,7 @@ get-subsystems-oas:
 get-certificates:
   stage: gather
   script:
+    - mkdir certificates
     - echo $BACKPLANE_CERT > certificates/cert.crt
     - echo $BACKPLANE_KEY > certificates/key.key
     - echo $CA_CERT > certificates/ca-cert.crt
