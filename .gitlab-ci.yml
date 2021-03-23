@@ -51,6 +51,17 @@ get-subsystems-oas:
       - specs/
     expire_in: 10 mins
 
+get-certificates:
+  stage: gather
+  script:
+    - echo $BACKPLANE_CERT > certificates/cert.crt
+    - echo $BACKPLANE_KEY > certificates/key.key
+    - echo $CA_CERT > certificates/ca-cert.crt
+  artifacts:
+    paths:
+      - certificates/
+    expire_in: 10 mins
+
 
 integrate-subsystems:
   stage: integrate
