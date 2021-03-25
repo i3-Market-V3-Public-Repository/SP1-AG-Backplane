@@ -70,7 +70,7 @@ get-certificates:
 
 integrate-subsystems:
   stage: integrate
-  image: node/15-slim
+  image: node:15-slim
   script:
     - npm i -g @loopback/cli
     - ./bulk_integrator . ./specs
