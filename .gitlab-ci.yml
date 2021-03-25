@@ -27,7 +27,6 @@ get-env:
   stage: gather
   script:
     - echo "$BACKPLANE_ENV_FILE" > .env
-    - head -n1 .env
   artifacts:
     paths:
       - .env
@@ -61,14 +60,8 @@ get-certificates:
   script:
     - mkdir certificates
     - echo "$BACKPLANE_CERT" > certificates/cert.crt
-    - head -n1 certificates/cert.crt
     - echo "$BACKPLANE_KEY" > certificates/key.key
-    - head -n1 certificates/key.key
     - echo "$CA_CERT" > certificates/ca-cert.crt
-    - head -n1 certificates/ca-cert.crt
-    - echo "Is this not working or what?" > test.txt
-    - head -n1 test.txt
-    - cat test.txt
   artifacts:
     paths:
       - certificates/
