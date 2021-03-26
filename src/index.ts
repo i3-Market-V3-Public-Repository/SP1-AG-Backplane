@@ -11,14 +11,21 @@ export async function main(options: ApplicationConfig = {}) {
 
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
-  console.log(`Try ${url}/ping`);
 
   return app;
 }
 
-if (require.main === module) {
+function getSecrets() {
   const secretsPath = process.env.SECRETS_PATH ?? './.secrets.json';
-  const secrets = JSON.parse(fs.readFileSync(secretsPath).toString());
+  try {
+    return JSON.parse(fs.readFileSync(secretsPath).toString());
+  } catch (e) {
+    return {}
+  }
+}
+
+if (require.main === module) {
+  const secrets = getSecrets()
 
   const certificatesPath = process.env.CERTS_PATH ?? './certificates';
   const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
