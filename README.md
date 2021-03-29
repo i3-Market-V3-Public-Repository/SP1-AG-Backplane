@@ -157,6 +157,9 @@ You can use docker compose to run the backplane.
 To do so, follow the same setup instructions as above, and create a file called `.env` placed at the project root directory (same level as this README), containing all the necessary environment variables.
 A template is provided ([.env.template](.env.template)) for ease.
 
+If your certificates folder or the secrets.json file is not located at the root directory of the projecte, modify the 
+corresponding paths in the [docker-compose.yaml](docker-compose.yaml) to the correct ones.
+
 Then, just build and run using:
 ```shell
 docker-compose build

@@ -5,6 +5,7 @@ services:
     build: .
     image: backplane:latest
     env_file:
+#      - <path to .env file>
       - .env
     environment:
       CERTS_PATH: /certificates
@@ -13,5 +14,8 @@ services:
       - "3000:3000"
     volumes:
 #      Change "./certificates" below for the path containing the certificates
+#      - <path to certificates directory>:/certificates
       - ./certificates:/certificates
+#      Change "./.secrets.json" below for the path of the secrets.json file
+#      - <path of secrets file>:/.secrets.json
       - ./.secrets.json:/.secrets.json
