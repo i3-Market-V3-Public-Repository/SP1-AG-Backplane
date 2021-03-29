@@ -68,13 +68,15 @@ integrate-subsystems:
 build:
   stage: build
   image:
-    name: docker/compose:latest
+    name: docker:19.03.13
   services:
-    - docker:dind
+    - docker:19.03.13-dind
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
 
@@ -82,7 +84,6 @@ build:
 update-secrets:
   stage: build
   script:
-    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "$SECRETS_URL"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "$SECRETS_URL"'
 
 
