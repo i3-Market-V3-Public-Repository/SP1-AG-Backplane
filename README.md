@@ -120,7 +120,8 @@ docker run
 
 The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
 
-Then set the `OIDC_PROVIDER_WELL_KNOWN_URL` env variable to the proper value (probably `https://localhost:8080/auth/realms/i3-Market/.well-known/openid-configuration`)
+Then set the `OIDC_PROVIDER_WELL_KNOWN_URL` env variable to the proper value (if followed the instructions above, 
+it should be `https://localhost:8080/auth/realms/i3-Market/.well-known/openid-configuration`)
 
 ## Environment Variables
 The following list shows the different environment variables the Backplane uses
