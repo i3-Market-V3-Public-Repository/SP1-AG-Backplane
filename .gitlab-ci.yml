@@ -2,13 +2,15 @@ stages:
   - gather
   - integrate
   - build
-  # TODO: uncomment deploy stage
-#  - deploy
+  - deploy
 
 variables:
-  INTEGRATOR_VERSION: "0.0.6"
+  INTEGRATOR_VERSION: "0.0.8"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
+  SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
+  ANSIBLE_JOB_URL: "http://95.211.3.249/api/v2/job_templates/13/launch/"
+
 
 get-integrator:
   stage: gather
@@ -21,13 +23,14 @@ get-integrator:
       - bulk_integrator
     expire_in: 10 mins
 
-get-env:
+get-secrets:
   stage: gather
+  image: curlimages/curl:latest
   script:
-    - echo $BACKPLANE_ENV_FILE > .env
+    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
   artifacts:
     paths:
-      - .env
+      - .secrets.json
     expire_in: 10 mins
 
 get-subsystems-oas:
@@ -37,11 +40,18 @@ get-subsystems-oas:
   artifacts:
     paths:
       - specs/
+    exclude:
+      - specs/.gitlab-ci.yml
+      - specs/.git
+      - spect/README.md
     expire_in: 10 mins
+
 
 integrate-subsystems:
   stage: integrate
+  image: node:15-slim
   script:
+    - npm i -g @loopback/cli@2.15.1
     - ./bulk_integrator . ./specs
   artifacts:
     untracked: true
@@ -51,7 +61,9 @@ integrate-subsystems:
       - src/models/index.ts
       - src/repositories/index.ts
       - src/services/index.ts
+      - .secrets.json
     expire_in: 10 mins
+
 
 build:
   stage: build
@@ -63,13 +75,18 @@ build:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker-compose build
-    - docker tag backplane:latest $IMAGE_TAG
+    - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
 
-# TODO: trigger Ansible playbook automatically with gitLab webhooks
-#deploy-ansible:
-#  stage: deploy
-#  script:
-#    - echo "Deploying..."
-#    - echo "Deployed"
+
+update-secrets:
+  stage: build
+  script:
+    - 'curl --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" "$SECRETS_URL"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "$SECRETS_URL"'
+
+
+deploy-ansible:
+  stage: deploy
+  script:
+    - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_JOB_URL"'
