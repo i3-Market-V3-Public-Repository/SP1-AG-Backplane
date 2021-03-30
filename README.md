@@ -118,7 +118,7 @@ docker run
   jboss/keycloak                                                  // Name of the docker image
 ```
 
-The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
+The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).  
 Both user and password to log in are `admin`.
 
 Then set the `OIDC_PROVIDER_WELL_KNOWN_URL` env variable to the proper value (if followed the instructions above, 
