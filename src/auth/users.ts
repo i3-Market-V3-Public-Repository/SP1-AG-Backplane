@@ -19,7 +19,7 @@ export function createUser(id: string, scope: string): User {
   console.log(`Create user ${id} with scopes [${scope}]`);
   const user = new User({
     id: id,
-    scope: scope + ' consumer params',
+    scope: scope,
   });
   users.set(id, user);
   return Object.assign({}, user);
