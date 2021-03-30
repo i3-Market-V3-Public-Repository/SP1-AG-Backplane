@@ -101,21 +101,21 @@ Once registered as a Relying party, set the three following environment variable
 
 #### Keycloak
 
-If, for development purposes, you want to use a local OpenId Connect provider, you can use the docker image of Keycloak with the following command:
+If, for development purposes, you want to use a local OpenId Connect provider, you can use the docker image of Keycloak with the following command (change <project-path> with absolute path to the project, relative paths do not work for docker run volumes):
 ```shell script
-docker run -p 8080:8443 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -v .\keycloak\keycloak.crt:/etc/x509/https/tls.crt -v .\keycloak\keycloak.key:/etc/x509/https/tls.key -e KEYCLOAK_IMPORT=/tmp/example-realm.json -v .\i3Market\keycloak\i3-market-realm.json:/tmp/example-realm.json jboss/keycloak
+docker run -p 8080:8443 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -v <project-path>\keycloak\keycloak.crt:/etc/x509/https/tls.crt -v <project-path>\keycloak\keycloak.key:/etc/x509/https/tls.key -e KEYCLOAK_IMPORT=/tmp/example-realm.json -v <project-path>\keycloak\i3-market-realm.json:/tmp/example-realm.json jboss/keycloak
 ```
 Parts:
 ```shell script
 docker run 
-  -p 8080:8443                                                // Port mapping, the docker will listen on port 8080 
-  -e KEYCLOAK_USER=admin                                      // Adds 'admin' as user
-  -e KEYCLOAK_PASSWORD=admin                                  // Adds 'admin' as user password
-  -e KEYCLOAK_IMPORT=/tmp/example-realm.json                  // Imports 'i3-Market' realm
-  -v .\keycloak\keycloak.crt:/etc/x509/https/tls.crt          // Adds TLS certificate
-  -v .\keycloak\keycloak.key:/etc/x509/https/tls.key          // Adds TLS key
-  -v .\keycloak\i3-market-realm.json:/tmp/example-realm.json  // Adds 'i3-Market' realm file
-  jboss/keycloak                                              // Name of the docker image
+  -p 8080:8443                                                    // Port mapping, the docker will listen on port 8080 
+  -e KEYCLOAK_USER=admin                                          // Adds 'admin' as user
+  -e KEYCLOAK_PASSWORD=admin                                      // Adds 'admin' as user password
+  -e KEYCLOAK_IMPORT=/tmp/example-realm.json                      // Imports 'i3-Market' realm
+  -v <project-path>\keycloak.crt:/etc/x509/https/tls.crt          // Adds TLS certificate           *MUST BE CHANGED*
+  -v <project-path>\keycloak.key:/etc/x509/https/tls.key          // Adds TLS key                   *MUST BE CHANGED*
+  -v <project-path>\i3-market-realm.json:/tmp/example-realm.json  // Adds 'i3-Market' realm file    *MUST BE CHANGED*
+  jboss/keycloak                                                  // Name of the docker image
 ```
 
 The created realm has no users, so some will have to be created using the [Keycloak admin console](https://localhost:8080/auth/admin/master/console).
