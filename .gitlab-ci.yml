@@ -72,7 +72,7 @@ build:
     name: docker:19.03.13
   services:
     - name: docker:19.03.13-dind
-      entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh", "--insecure-registry=${DOCKER_REGISTRY}"]
+      entrypoint: [ "dockerd-entrypoint.sh", "--insecure-registry=${DOCKER_REGISTRY}"]
   variables:
     IMAGE_TAG: $DOCKER_REGISTRY/backplane:latest
     DOCKER_TLS_CERTDIR: ""
