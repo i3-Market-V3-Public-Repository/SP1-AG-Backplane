@@ -10,6 +10,7 @@ variables:
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
   ANSIBLE_JOB_URL: "http://95.211.3.249/api/v2/job_templates/13/launch/"
+  DOCKER_REGISTRY: "95.211.3.251:8123"
 
 
 get-integrator:
@@ -70,12 +71,13 @@ build:
   image:
     name: docker:19.03.13
   services:
-    - docker:19.03.13-dind
+    - name: docker:19.03.13-dind
+      command: ["--insecure-registry=$DOCKER_REGISTRY"]
   variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+    IMAGE_TAG: $DOCKER_REGISTRY/backplane:latest
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+    - echo "$DOCKER_REGISTRY_PASSWORD" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
   script:
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
