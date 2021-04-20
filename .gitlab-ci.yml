@@ -10,8 +10,8 @@ variables:
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
   DOCKER_REGISTRY: "95.211.3.251:8123"
-  ANSIBLE_BACKPLANE_JOB_URL: "http://95.211.3.249/api/v2/job_templates/13/launch/"
-  ANSIBLE_SDK_JOB_URL: "http://95.211.3.249/api/v2/job_templates/24/launch/"
+  ANSIBLE_BACKPLANE_JOB_URL: "http://95.211.3.249:19000/api/v2/job_templates/13/launch/"
+  ANSIBLE_SDK_JOB_URL: "http://95.211.3.249:19000/api/v2/job_templates/24/launch/"
 
 
 get-integrator:
