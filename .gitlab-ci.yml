@@ -90,7 +90,7 @@ build:
 update-secrets:
   stage: build
   script:
-    - echo $NEXUS_PASSWORD | curl --request PUT -u '${NEXUS_USER}' --upload-file .secrets.json $SECRETS_URL
+    - echo $NEXUS_PASSWORD | curl --request PUT -u "$NEXUS_USER" --upload-file .secrets.json $SECRETS_URL
 
 
 deploy-ansible-backend:
