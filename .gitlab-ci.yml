@@ -8,8 +8,7 @@ variables:
   INTEGRATOR_VERSION: "1.0.3"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
-  SECRETS_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/secrets/1.0.0/.secrets.json"
-  DOCKER_REGISTRY: "95.211.3.251:8123"
+  SECRETS_URL: "http://95.211.3.251:8081/repository/i3m-raw/backplane/env/secrets.json"
   ANSIBLE_BACKPLANE_JOB_URL: "http://95.211.3.249:19000/api/v2/job_templates/13/launch/"
   ANSIBLE_SDK_JOB_URL: "http://95.211.3.249:19000/api/v2/job_templates/24/launch/"
 
@@ -29,7 +28,7 @@ get-secrets:
   stage: gather
   image: curlimages/curl:latest
   script:
-    - 'wget --header="JOB-TOKEN: $CI_JOB_TOKEN" "${SECRETS_URL}"'
+    - echo $NEXUS_PASSWORD | wget --user $NEXUS_USER --ask-password $SECRETS_URL
   artifacts:
     paths:
       - .secrets.json
@@ -75,19 +74,23 @@ build:
     - name: docker:19.03.13-dind
       entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$DOCKER_REGISTRY"]
   variables:
-    IMAGE_TAG: $DOCKER_REGISTRY/backplane:latest
+    NEXUS_REGISTRY: "95.211.3.251:8123"
+    NEXUS_IMAGE_TAG: $NEXUS_REGISTRY/backplane:latest
     DOCKER_TLS_CERTDIR: ""
+    GITLAB_IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
   before_script:
-    - echo "$DOCKER_REGISTRY_PASSWORD" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
+    - echo "$NEXUS_PASSWORD" | docker login $NEXUS_REGISTRY --username $NEXUS_USER --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
   script:
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
+    - docker build -t $NEXUS_IMAGE_TAG -t $GITLAB_IMAGE_TAG .
+    - docker push $NEXUS_IMAGE_TAG
+    - docker push $GITLAB_IMAGE_TAG
 
 
 update-secrets:
   stage: build
   script:
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file .secrets.json "$SECRETS_URL"'
+    - echo $NEXUS_PASSWORD | curl --request PUT -u '$NEXUS_USER' --upload-file .secrets.json $SECRETS_URL
 
 
 deploy-ansible-backend:
