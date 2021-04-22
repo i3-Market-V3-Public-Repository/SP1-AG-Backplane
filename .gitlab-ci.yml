@@ -77,7 +77,7 @@ build:
     GITLAB_IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
   services:
       - name: docker:19.03.13-dind
-    entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$NEXUS_REGISTRY"]
+        entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$NEXUS_REGISTRY"]
   before_script:
     - echo $NEXUS_PASSWORD | docker login $NEXUS_REGISTRY --username $NEXUS_USER --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
