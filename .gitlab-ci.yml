@@ -29,6 +29,7 @@ get-secrets:
   image: curlimages/curl:latest
   script:
     - echo $NEXUS_PASSWORD | curl --request GET -u '$NEXUS_USER' $SECRETS_URL
+    - mv secrets.json .secrets.json
   artifacts:
     paths:
       - .secrets.json
