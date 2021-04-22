@@ -28,7 +28,7 @@ get-secrets:
   stage: gather
   image: curlimages/curl:latest
   script:
-    - echo $NEXUS_PASSWORD | curl --request GET -u '$NEXUS_USER' $SECRETS_URL --output .secrets.json -v
+    - echo $NEXUS_PASSWORD | curl --request GET -u '${NEXUS_USER}' $SECRETS_URL --output .secrets.json -v
   artifacts:
     paths:
       - .secrets.json
@@ -90,7 +90,7 @@ build:
 update-secrets:
   stage: build
   script:
-    - echo $NEXUS_PASSWORD | curl --request PUT -u '$NEXUS_USER' --upload-file .secrets.json $SECRETS_URL
+    - echo $NEXUS_PASSWORD | curl --request PUT -u '${NEXUS_USER}' --upload-file .secrets.json $SECRETS_URL
 
 
 deploy-ansible-backend:
