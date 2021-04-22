@@ -97,5 +97,7 @@ deploy-ansible-backend:
 
 deploy-ansible-sdk:
   stage: deploy
+  only:
+    - master
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_SDK_JOB_URL"'
