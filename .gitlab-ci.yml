@@ -70,17 +70,17 @@ build:
   stage: build
   image:
     name: docker:19.03.13
-  services:
-    - name: docker:19.03.13-dind
-      entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$DOCKER_REGISTRY"]
   variables:
     NEXUS_REGISTRY: "95.211.3.251:8123"
     NEXUS_IMAGE_TAG: $NEXUS_REGISTRY/backplane:latest
     DOCKER_TLS_CERTDIR: ""
     GITLAB_IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+  services:
+      - name: docker:19.03.13-dind
+    entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$NEXUS_REGISTRY"]
   before_script:
-    - echo "$NEXUS_PASSWORD" | docker login $NEXUS_REGISTRY --username $NEXUS_USER --password-stdin
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+    - echo $NEXUS_PASSWORD | docker login $NEXUS_REGISTRY --username $NEXUS_USER --password-stdin
+    - echo $CI_REGISTRY_PASSWORD | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
   script:
     - docker build -t $NEXUS_IMAGE_TAG -t $GITLAB_IMAGE_TAG .
     - docker push $NEXUS_IMAGE_TAG
