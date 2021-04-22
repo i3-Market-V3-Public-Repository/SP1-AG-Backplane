@@ -17,7 +17,7 @@ get-integrator:
   stage: gather
   image: curlimages/curl:latest
   script:
-    - 'curl --request GET --header="JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
+    - 'curl --request GET --header "JOB-TOKEN: $CI_JOB_TOKEN" "${INTEGRATOR_URL}"'
     - chmod +x ./bulk_integrator
   artifacts:
     paths:
