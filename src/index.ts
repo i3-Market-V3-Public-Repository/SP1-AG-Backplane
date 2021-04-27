@@ -1,5 +1,4 @@
 import {ApplicationConfig, BackplaneApplication} from './application';
-import * as https from 'https';
 import * as fs from 'fs';
 
 export * from './application';
@@ -27,15 +26,15 @@ function getSecrets() {
 if (require.main === module) {
   const secrets = getSecrets()
 
-  const certificatesPath = process.env.CERTS_PATH ?? './certificates';
-  const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
-  const key = fs.readFileSync(`${certificatesPath}/key.key`);
-  const caCert = fs.readFileSync(`${certificatesPath}/ca-cert.crt`);
-
-  https.globalAgent.options.ca = caCert;
-  https.globalAgent.options.cert = cert;
-  https.globalAgent.options.key = key;
-  https.globalAgent.options.rejectUnauthorized = false;
+  // const certificatesPath = process.env.CERTS_PATH ?? './certificates';
+  // const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
+  // const key = fs.readFileSync(`${certificatesPath}/key.key`);
+  // const caCert = fs.readFileSync(`${certificatesPath}/ca-cert.crt`);
+  //
+  // https.globalAgent.options.ca = caCert;
+  // https.globalAgent.options.cert = cert;
+  // https.globalAgent.options.key = key;
+  // https.globalAgent.options.rejectUnauthorized = false;
 
   const config = {
     rest: {
@@ -45,12 +44,12 @@ if (require.main === module) {
       openApiSpec: {
         setServersFromRequest: true,
       },
-      protocol: 'https',
-      minVersion: 'TLSv1.3',
-      key: key,
-      cert: cert,
-      ca: caCert,
-      rejectUnauthorized: false,
+      protocol: 'http',
+      // minVersion: 'TLSv1.3',
+      // key: key,
+      // cert: cert,
+      // ca: caCert,
+      // rejectUnauthorized: false,
     },
     secrets: secrets
   };
