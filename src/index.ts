@@ -51,7 +51,8 @@ if (require.main === module) {
       // ca: caCert,
       // rejectUnauthorized: false,
     },
-    secrets: secrets
+    secrets: secrets,
+    jwtKey: 'hey' //key
   };
   main(config).catch(err => {
     console.error('Cannot start the application.', err);

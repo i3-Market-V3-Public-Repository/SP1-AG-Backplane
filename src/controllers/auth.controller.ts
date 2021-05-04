@@ -9,7 +9,7 @@ import * as jwt from 'jsonwebtoken';
 import {User} from '../models';
 
 export class AuthController {
-  constructor(@inject('config.rest.key') private key: string | Buffer,) {
+  constructor(@inject('config.jwt.key') private key: string | Buffer,) {
   }
 
   private getJWT(user: BackplaneUserProfile) {

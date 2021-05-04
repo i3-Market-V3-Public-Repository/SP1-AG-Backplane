@@ -28,11 +28,8 @@ export class BackplaneApplication extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
-    this.add(createBindingFromClass(JWTSpecEnhancer));
-    this.add(createBindingFromClass(OpenIdSpecEnhancer));
-
     this.bind('config.secrets').to(options.secrets);
-    this.bind('config.rest.key').to(options.rest.key);
+    this.bind('config.jwt.key').to(options.jwtKey);
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -91,6 +88,8 @@ export class BackplaneApplication extends BootMixin(
       .toProvider(AuthorizationProvider)
       .tag(AuthorizationTags.AUTHORIZER);
 
+    this.add(createBindingFromClass(JWTSpecEnhancer));
+    this.add(createBindingFromClass(OpenIdSpecEnhancer));
 
     this.projectRoot = __dirname;
     this.bootOptions = {
