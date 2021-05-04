@@ -14,7 +14,7 @@ export const JWT_SECURITY_SCHEMA = {jwt: []};
 
 export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy> {
   constructor(
-    @inject('config.rest.key') private key: string | Buffer,
+    @inject('config.jwt.key') private key: string | Buffer,
   ) {
   }
 
