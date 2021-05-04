@@ -113,9 +113,14 @@ export class OpenIdSpecEnhancer implements OASEnhancer {
   }
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
-    return mergeSecuritySchemeToSpec(spec, this.name, {
+    const modifiedSpec = mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'openIdConnect',
       openIdConnectUrl: this.url,
     });
+    modifiedSpec.components!.securitySchemes![this.name] = {
+      type: 'openIdConnect',
+      openIdConnectUrl: this.url,
+    };
+    return modifiedSpec;
   }
 }

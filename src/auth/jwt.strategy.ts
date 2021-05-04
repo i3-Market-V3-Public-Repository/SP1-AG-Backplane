@@ -42,10 +42,17 @@ export class JWTSpecEnhancer implements OASEnhancer {
   name = JWT_STRATEGY_NAME;
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
-    return mergeSecuritySchemeToSpec(spec, this.name, {
+    const modifiedSpec = mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
     });
+
+    modifiedSpec.components!.securitySchemes![this.name] = {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    };
+    return modifiedSpec;
   }
 }
