@@ -5,6 +5,7 @@ export interface BackplaneUserProfile extends UserProfile, User {
 }
 
 const users: Map<string, User> = new Map();
+createUser('did:ethr:0x08dddc705a29dfaa79ab1a0865b45c77a3c67a49', 'consumer provider');
 
 export function findById(id: string): User | undefined {
   console.log(`Looking for user ${id}`);
