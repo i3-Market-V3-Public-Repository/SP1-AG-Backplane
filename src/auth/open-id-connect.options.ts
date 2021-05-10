@@ -11,7 +11,7 @@ export const OPEN_ID_METADATA: ClientMetadata = {
     response_types: ['code'],
     token_endpoint_auth_method: 'client_secret_jwt',
     id_token_signed_response_alg: 'EdDSA',
-    scope: 'openid vc'
+    scope: 'openid vc vc:consumer vc:provider'
 }
 
 export const OPEN_ID_WELL_KNOWN_URL = process.env.OIDC_PROVIDER_WELL_KNOWN_URL;

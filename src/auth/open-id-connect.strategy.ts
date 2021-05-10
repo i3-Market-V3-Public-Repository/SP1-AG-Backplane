@@ -57,10 +57,28 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     const data = decode(tokenSet.id_token!) as {[p: string]: unknown};
     let user = findById(data.sub as string);
     if (!user) {
-      const scope = tokenSet.scope ?? '';
+      const scope = this.extractScope(data);
       user = createUser(data.sub as string, scope);
     }
     return {id: user.id, scope: user.scope} as BackplaneUserProfile;
+  }
+
+  private extractScope(data: {[p: string]: unknown}): string {
+    const verifiedClaims = data.verified_claims as {[p: string]: unknown};
+    if (!verifiedClaims) return '';
+    const claims: string[] = [];
+    const userClaims: {[p: string]: unknown}[] = [];
+    if (verifiedClaims.trusted) userClaims.push(...(verifiedClaims.trusted as {[p: string]: unknown}[]));
+    if (verifiedClaims.untrusted) userClaims.push(...(verifiedClaims.untrusted as {[p: string]: unknown}[]));
+    for (const claim of userClaims) {
+      const subclaim = claim.claim as {[p: string]: boolean};
+      for (const key in subclaim) {
+        if (subclaim[key]) {
+          claims.push(key);
+        }
+      }
+    }
+    return claims.join(' ');
   }
 
   async processOptions() {
