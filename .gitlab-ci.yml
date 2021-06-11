@@ -104,3 +104,14 @@ deploy-ansible-sdk:
     - master
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_SDK_JOB_URL"'
+
+deploy-backplane-docs:
+  stage: deploy
+  only:
+    - master
+  variables:
+    DOCS_TRIGGER_REF: master
+    DOCS_CI_URL: https://gitlab.com/api/v4/projects/26297031/trigger/pipeline
+  script:
+    - "curl -X POST -F token=${DOCS_TRIGGER_TOKEN} -F ref=${DOCS_TRIGGER_REF} ${DOCS_CI_URL}"
+
