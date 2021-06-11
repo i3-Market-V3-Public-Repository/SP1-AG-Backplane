@@ -2,7 +2,7 @@ import {BootMixin} from '@loopback/boot';
 import {addExtension, ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
+import {Middleware, RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
@@ -33,6 +33,8 @@ export class BackplaneApplication extends BootMixin(
 
     // Set up the custom sequence
     this.sequence(MySequence);
+
+    this.addMiddleware();
 
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
@@ -99,5 +101,30 @@ export class BackplaneApplication extends BootMixin(
         nested: true,
       },
     };
+  }
+
+  private addMiddleware() {
+    const log: Middleware = async (middlewareCtx, next) => {
+      const {request} = middlewareCtx;
+      console.log('Request: %s %s', request.method, request.originalUrl);
+      try {
+        const result = await next();
+        console.log(
+            'Response: %s %s ',
+            request.method,
+            request.originalUrl,
+        );
+        return result;
+      } catch (err) {
+        console.error(
+            'Error received for %s %s',
+            request.method,
+            request.originalUrl,
+        );
+        throw err;
+      }
+    };
+
+    this.middleware(log);
   }
 }

@@ -5,7 +5,7 @@ stages:
   - deploy
 
 variables:
-  INTEGRATOR_VERSION: "1.0.14"
+  INTEGRATOR_VERSION: "1.0.15"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   SECRETS_URL: "http://95.211.3.251:8081/repository/i3m-raw/backplane/env/secrets.json"
@@ -104,3 +104,14 @@ deploy-ansible-sdk:
     - master
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_SDK_JOB_URL"'
+
+deploy-backplane-docs:
+  stage: deploy
+  only:
+    - master
+  variables:
+    DOCS_TRIGGER_REF: master
+    DOCS_CI_URL: https://gitlab.com/api/v4/projects/26297031/trigger/pipeline
+  script:
+    - "curl -X POST -F token=${DOCS_TRIGGER_TOKEN} -F ref=${DOCS_TRIGGER_REF} ${DOCS_CI_URL}"
+
