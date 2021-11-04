@@ -36,8 +36,12 @@
   "repository": {
     "type": "git"
   },
-  "author": "Víctor Diví <victor.divi@upc.edu>",
-  "license": "",
+  "contributors": [
+    {"name" : "Víctor Diví", "email" : "victor.divi@upc.edu"},
+    {"name" : "Juan Salmerón", "email" : "juan.salmeron@upc.edu"},
+    {"name" : "Marc Catrisse", "email" : "marc.catrisse@upc.edu"}
+  ],
+  "license": "MIT",
   "files": [
     "README.md",
     "dist",
