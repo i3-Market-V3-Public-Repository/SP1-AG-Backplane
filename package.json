@@ -41,7 +41,7 @@
     {"name" : "Juan Salmerón", "email" : "juan.salmeron@upc.edu"},
     {"name" : "Marc Catrisse", "email" : "marc.catrisse@upc.edu"}
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "files": [
     "README.md",
     "dist",
