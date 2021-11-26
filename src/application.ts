@@ -2,7 +2,7 @@ import {BootMixin} from '@loopback/boot';
 import {addExtension, ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {RepositoryMixin} from '@loopback/repository';
-import {Middleware, RestApplication} from '@loopback/rest';
+import {Middleware, RestApplication, RestBindings} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
@@ -20,6 +20,7 @@ import {
 import {AuthorizationProvider} from './auth/authorizer.provider';
 import { OpenIdConnectAuthenticationStrategyBindings} from './services';
 import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
+import {CustomSendProvider} from './providers/custom-send.provider';
 
 export {ApplicationConfig};
 
@@ -92,6 +93,9 @@ export class BackplaneApplication extends BootMixin(
 
     this.add(createBindingFromClass(JWTSpecEnhancer));
     this.add(createBindingFromClass(OpenIdSpecEnhancer));
+
+    //Bind custom sender
+    this.bind(RestBindings.SequenceActions.SEND).toProvider(CustomSendProvider);
 
     this.projectRoot = __dirname;
     this.bootOptions = {
