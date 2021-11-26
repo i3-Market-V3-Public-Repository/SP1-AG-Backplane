@@ -16,8 +16,7 @@ export class CustomSendProvider implements Provider<Send> {
     };
   }
   /**
-   * Use the mimeType given in the request's Accept header to convert
-   * the response object!
+   * Propagate the contentType header in openApiConnector responses
    * @param response - The response object used to reply to the  client.
    * @param result - The result of the operation carried out by the controller's
    * handling function.
