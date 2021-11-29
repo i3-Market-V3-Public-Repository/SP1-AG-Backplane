@@ -26,10 +26,25 @@ export class CustomSendProvider implements Provider<Send> {
       const contentType = result.headers['content-type'];
       if (contentType != null && contentType.length > 0){
         response.setHeader('Content-Type', contentType);
-        response.end(result.value);
+        response.end(CustomSendProvider.parseResult(result.value));
         return;
       }
     }
     writeResultToResponse(response, result); //default behaviour
+  }
+
+  private static parseResult(result: OperationRetval){
+    let res;
+    switch (typeof result) {
+      case 'object':
+      case 'boolean':
+      case 'number':
+          res = JSON.stringify(result);
+        break;
+      default:
+        res = result.toString();
+        break;
+    }
+    return res;
   }
 }
