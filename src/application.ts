@@ -21,6 +21,7 @@ import {AuthorizationProvider} from './auth/authorizer.provider';
 import { OpenIdConnectAuthenticationStrategyBindings} from './services';
 import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
 import {CustomSendProvider} from './providers/custom-send.provider';
+import {CustomRejectProvider} from './providers/custom-reject.provider';
 
 export {ApplicationConfig};
 
@@ -96,6 +97,8 @@ export class BackplaneApplication extends BootMixin(
 
     //Bind custom sender
     this.bind(RestBindings.SequenceActions.SEND).toProvider(CustomSendProvider);
+    this.bind(RestBindings.SequenceActions.REJECT).toProvider(CustomRejectProvider);
+    this.bind(RestBindings.ERROR_WRITER_OPTIONS).to({safeFields: ['responseBody']});
 
     this.projectRoot = __dirname;
     this.bootOptions = {
