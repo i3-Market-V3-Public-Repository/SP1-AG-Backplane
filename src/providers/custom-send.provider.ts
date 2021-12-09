@@ -1,8 +1,8 @@
 import {Send, Response, OperationRetval} from '@loopback/rest';
-import {Provider, inject} from '@loopback/core';
+import {Provider, inject, injectable, BindingScope} from '@loopback/core';
 import {writeResultToResponse, RestBindings, Request} from '@loopback/rest';
 
-
+@injectable({scope: BindingScope.SINGLETON})
 export class CustomSendProvider implements Provider<Send> {
   // In this example, the injection key for formatter is simple
   constructor(
