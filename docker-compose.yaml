@@ -17,9 +17,7 @@ services:
       OIDC_CLIENT_ID: ${BACKPLANE_OIDC_CLIENT_ID}
       OIDC_CLIENT_SECRET: ${BACKPLANE_OIDC_CLIENT_SECRET}
       OIDC_PROVIDER_WELL_KNOWN_URL: ${BACKPLANE_OIDC_PROVIDER_WELL_KNOWN_URL}
-    volumes:
-      - ./specs:/specs
-    command: /bin/bash -c "/integrator/bulk_integrator . /specs && npm run build && node ."
+    command: ./scripts/start_docker.sh
 
   backplane:
     build: .
