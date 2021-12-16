@@ -1,3 +1,34 @@
+<!---
+#  Copyright 2020-2022 i3-MARKET Consortium:
+#
+#  ATHENS UNIVERSITY OF ECONOMICS AND BUSINESS - RESEARCH CENTER
+#  ATOS SPAIN SA
+#  EUROPEAN DIGITAL SME ALLIANCE
+#  GFT ITALIA SRL
+#  GUARDTIME OU
+#  HOP UBIQUITOUS SL
+#  IBM RESEARCH GMBH
+#  IDEMIA FRANCE
+#  SIEMENS AKTIENGESELLSCHAFT
+#  SIEMENS SRL
+#  TELESTO TECHNOLOGIES PLIROFORIKIS KAI EPIKOINONION EPE
+#  UNIVERSITAT POLITECNICA DE CATALUNYA
+#  UNPARALLEL INNOVATION LDA
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+-->
+
 # i3-Market Backplane API
 
 ## Setup
@@ -143,3 +174,41 @@ Then, just build and run using:
 docker-compose build
 docker-compose up
 ```
+
+### Backplane with integrator
+Backplane Dockerfile allows including the integrator executable providing on demand OAS integration.
+[docker-compose.yaml](docker-compose.yaml) defines the service *backplane-with-integrator* as an example. It includes
+the integrator during bulding phase, following the entrypoint checks if there is any OAS inside backplane container 
+/home/node/app/specs directory, otherwise, it will download all the OAS located in subsystems OAS GitLab repository.
+
+#### Dockerfile Build Variables
+* <b>ADD_INTEGRATOR</b>: Set to 1 to include the integrator manager executable (stored in /integrator/bulk_integrator)
+* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
+* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
+* <b>INTEGRATOR_VERSION</b>: Integrator manager version to use (Optional, by default: 1.0.18)
+
+#### Use cases
+* <b>Retrieve OAS from GitLab, integrate them and run the backplane</b>:
+  * Ensure there is no specs directory mapped inside the container 
+  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD
+
+* <b>Integrate specified OAS and run the Backplane</b>:
+  * Mount your local OAS specs directory to */home/node/app/specs* container's path (use docker bind mount)
+  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD
+
+## Further Information
+
+## Contributing
+
+## License
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
