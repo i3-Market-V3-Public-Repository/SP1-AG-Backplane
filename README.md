@@ -143,3 +143,24 @@ Then, just build and run using:
 docker-compose build
 docker-compose up
 ```
+
+### Backplane with integrator
+Backplane Dockerfile allows including the integrator executable providing on demand OAS integration.
+[docker-compose.yaml](docker-compose.yaml) defines the service *backplane-with-integrator* as an example. It includes
+the integrator during bulding phase, following the entrypoint checks if there is any OAS inside backplane container 
+/home/node/app/specs directory, otherwise, it will download all the OAS located in subsystems OAS GitLab repository.
+
+#### Dockerfile Build Variables
+* <b>ADD_INTEGRATOR</b>: Set to 1 to include the integrator manager executable (stored in /integrator/bulk_integrator)
+* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
+* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
+* <b>INTEGRATOR_VERSION</b>: Integrator manager version to use (Optional, by default: 1.0.18)
+
+#### Use cases
+* <b>Retrieve OAS from GitLab, integrate them and run the backplane</b>:
+  * Ensure there is no specs directory mapped inside the container 
+  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD
+
+* <b>Integrate specified OAS and run the Backplane</b>:
+  * Mount your local OAS specs directory to */home/node/app/specs* container's path (use docker bind mount)
+  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD

@@ -1,6 +1,24 @@
 version: "3.8"
 
 services:
+  backplane-with-integrator:
+    build:
+      context: .
+      args:
+        ADD_INTEGRATOR: 1
+        GITLAB_USER: ${GITLAB_USER}
+        GITLAB_TOKEN: ${GITLAB_TOKEN}
+    container_name: backplane-test
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    environment:
+      OIDC_CLIENT_ID: ${BACKPLANE_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${BACKPLANE_OIDC_CLIENT_SECRET}
+      OIDC_PROVIDER_WELL_KNOWN_URL: ${BACKPLANE_OIDC_PROVIDER_WELL_KNOWN_URL}
+    command: ./scripts/start_docker.sh
+
   backplane:
     build: .
     image: backplane:latest
