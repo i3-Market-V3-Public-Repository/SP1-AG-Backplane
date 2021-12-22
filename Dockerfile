@@ -49,6 +49,6 @@ COPY --chown=node package*.json ./
 RUN npm install
 COPY --chown=node . .
 
-RUN npm run build
+RUN chmod +x ./scripts/* && npm run build
 
 CMD [ "node", "." ]
