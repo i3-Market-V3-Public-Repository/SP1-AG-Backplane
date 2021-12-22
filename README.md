@@ -183,9 +183,13 @@ the integrator during bulding phase, following the entrypoint checks if there is
 
 #### Dockerfile Build Variables
 * <b>ADD_INTEGRATOR</b>: Set to 1 to include the integrator manager executable (stored in /integrator/bulk_integrator)
-* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
-* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable and OAS if needed (Required if ADD_INTEGRATOR = 1)
-* <b>INTEGRATOR_VERSION</b>: Integrator manager version to use (Optional, by default: 1.0.18)
+  * Optional, by default: 0
+* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable and OAS if needed 
+  * Required if ADD_INTEGRATOR = 1
+* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable and OAS if needed 
+  * Required if ADD_INTEGRATOR = 1
+* <b>INTEGRATOR_VERSION</b>: Integrator manager version to use 
+  * Optional, by default: 1.0.18
 
 #### Use cases
 * <b>Retrieve OAS from GitLab, integrate them and run the backplane</b>:
