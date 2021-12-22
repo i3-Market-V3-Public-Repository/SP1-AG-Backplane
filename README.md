@@ -190,11 +190,11 @@ the integrator during bulding phase, following the entrypoint checks if there is
 #### Use cases
 * <b>Retrieve OAS from GitLab, integrate them and run the backplane</b>:
   * Ensure there is no specs directory mapped inside the container 
-  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD
+  * Use [./scripts/start_docker.sh](scripts/start_docker.sh) as CMD
 
 * <b>Integrate specified OAS and run the Backplane</b>:
   * Mount your local OAS specs directory to */home/node/app/specs* container's path (use docker bind mount)
-  * Use [scripts/start_docker](scripts/start_docker.sh) as CMD
+  * Use [./scripts/start_docker.sh](scripts/start_docker.sh) as CMD
 
 ## Further Information
 
