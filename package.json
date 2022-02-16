@@ -37,9 +37,18 @@
     "type": "git"
   },
   "contributors": [
-    {"name" : "Víctor Diví", "email" : "victor.divi@upc.edu"},
-    {"name" : "Juan Salmerón", "email" : "juan.salmeron@upc.edu"},
-    {"name" : "Marc Catrisse", "email" : "marc.catrisse@upc.edu"}
+    {
+      "name": "Víctor Diví",
+      "email": "victor.divi@upc.edu"
+    },
+    {
+      "name": "Juan Salmerón",
+      "email": "juan.salmeron@upc.edu"
+    },
+    {
+      "name": "Marc Catrisse",
+      "email": "marc.catrisse@upc.edu"
+    }
   ],
   "license": "Apache-2.0",
   "files": [
@@ -49,40 +58,40 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/authentication": "^7.0.1",
-    "@loopback/authentication-jwt": "^0.7.1",
-    "@loopback/authentication-passport": "^3.0.1",
-    "@loopback/authorization": "^0.7.1",
-    "@loopback/boot": "^3.0.1",
-    "@loopback/core": "^2.10.1",
-    "@loopback/repository": "^3.0.1",
-    "@loopback/rest": "^7.0.1",
-    "@loopback/rest-explorer": "^3.0.1",
-    "@loopback/security": "^0.3.7",
-    "@loopback/service-proxy": "^3.0.1",
+    "@loopback/authentication": "^8.1.0",
+    "@loopback/authentication-jwt": "^0.11.0",
+    "@loopback/authentication-passport": "^4.1.0",
+    "@loopback/authorization": "^0.11.0",
+    "@loopback/boot": "^4.1.0",
+    "@loopback/core": "^3.1.0",
+    "@loopback/repository": "^4.1.0",
+    "@loopback/rest": "^11.1.0",
+    "@loopback/rest-explorer": "^4.1.0",
+    "@loopback/security": "^0.7.0",
+    "@loopback/service-proxy": "^4.1.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/express-session": "^1.17.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/passport": "^1.0.4",
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "cookie-parser": "^1.4.5",
     "express-session": "^1.17.1",
     "jsonwebtoken": "^8.5.1",
-    "loopback-connector-openapi": "^6.1.0",
+    "loopback-connector-openapi": "^6.2.0",
     "openid-client": "^4.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^6.2.4",
-    "@loopback/eslint-config": "^10.0.0",
-    "@loopback/testlab": "^3.2.6",
-    "@types/node": "^10.17.35",
-    "eslint": "^7.9.0",
-    "source-map-support": "^0.5.19",
-    "typescript": "~4.0.2"
+    "@loopback/build": "^8.1.0",
+    "@loopback/eslint-config": "^12.0.2",
+    "@loopback/testlab": "^4.1.0",
+    "@types/node": "^12.20.43",
+    "eslint": "^8.8.0",
+    "source-map-support": "^0.5.21",
+    "typescript": "~4.5.5"
   }
 }
