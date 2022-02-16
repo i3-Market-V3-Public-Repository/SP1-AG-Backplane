@@ -118,6 +118,7 @@ build:
 
 image-analysis-trivy:
   stage: test
+  needs: ['integrate-subsystems']
   image: docker:stable
   services:
     - name: docker:dind
@@ -148,6 +149,8 @@ image-analysis-trivy:
       - gl-codeclimate.json
     reports:
       codequality: gl-codeclimate.json
+  # Gitlab CI currently doesn't support adding more than one codequality report. But you can join them using jq
+  # jq -s 'add' prev-codeclimate.json trivy-codeclimate.json > gl-codeclimate.json
 
 
 
