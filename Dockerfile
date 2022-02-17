@@ -36,8 +36,8 @@ ARG INTEGRATOR_VERSION=2.0.6
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@3.1.0 && \
       mkdir -p /integrator && \
-      apt-get update &&  \
-      apt-get install curl --no-install-recommends && \
+      apt-get -y update &&  \
+      apt-get -y install ca-certificates curl git --no-install-recommends && \
       curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
       chmod +x /integrator/bulk_integrator; \
 fi
