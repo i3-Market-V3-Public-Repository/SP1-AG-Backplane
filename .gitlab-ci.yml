@@ -81,7 +81,7 @@ get-subsystems-oas:
 
 integrate-subsystems:
   stage: integrate
-  image: node:15-slim
+  image: node:16.14-bullseye-slim
   script:
     - npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION
     - ./bulk_integrator . ./specs
