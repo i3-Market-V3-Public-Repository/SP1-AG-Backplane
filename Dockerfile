@@ -40,7 +40,7 @@ RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       apt-get -y update &&  \
       apt-get -y install ca-certificates curl git --no-install-recommends && \
       curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
-      apt-get -y remove --auto-remove ca-certificates curl && \
+      apt-get -y remove --auto-remove curl && \
       chmod +x /integrator/bulk_integrator; \
 fi
 
