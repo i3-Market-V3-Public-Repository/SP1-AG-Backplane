@@ -27,15 +27,18 @@
 #  limitations under the License.
 #
 
-FROM node:15
+FROM node:16.14-bullseye-slim
 ARG ADD_INTEGRATOR=0
 ARG GITLAB_USER
 ARG GITLAB_TOKEN
-ARG INTEGRATOR_VERSION=1.0.18
+ARG INTEGRATOR_VERSION=2.0.6
+ARG LOOPBACK_CLI_VERSION=3.1.0
 
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
-      npm i -g @loopback/cli@2.15.1 && \
+      npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
       mkdir -p /integrator && \
+      apt-get -y update &&  \
+      apt-get -y install ca-certificates curl git --no-install-recommends && \
       curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
       chmod +x /integrator/bulk_integrator; \
 fi
