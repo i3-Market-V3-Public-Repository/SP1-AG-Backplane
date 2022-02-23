@@ -29,12 +29,13 @@
 #
 */
 
-import {ExtractJwt, Strategy, VerifiedCallback} from 'passport-jwt';
+import {ExtractJwt, JwtFromRequestFunction, Strategy, VerifiedCallback} from 'passport-jwt';
 import {findById} from './users';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 import {injectable, inject, Provider} from '@loopback/core';
 import {asSpecEnhancer, mergeSecuritySchemeToSpec, OASEnhancer, OpenApiSpec} from '@loopback/rest';
 import {AuthenticationStrategy} from '@loopback/authentication';
+import {Request} from 'express';
 
 interface Payload {
   sub: string;
@@ -49,8 +50,11 @@ export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy>
   ) {
   }
 
-  verify(payload: Payload, done: VerifiedCallback) {
+  //TODO verify jwt against VC Service
+  verify(req: Request, payload: Payload, done: VerifiedCallback) {
     const user = findById(payload.sub);
+    const jwt = this.getJwt()(req);
+    //TODO SEND request to VC Verify
     if (user) {
       console.log(`jwt for user ${payload.sub} verified and the user is in the db`);
       return done(null, user);
@@ -61,10 +65,15 @@ export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy>
 
   value(): AuthenticationStrategy {
     const jwtStrategy = new Strategy({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: this.getJwt(),
+      passReqToCallback: true,
       secretOrKey: this.key,
     }, this.verify);
     return new StrategyAdapter(jwtStrategy, JWT_STRATEGY_NAME);
+  }
+
+  getJwt(): JwtFromRequestFunction{
+    return ExtractJwt.fromHeader('access_token');
   }
 }
 
