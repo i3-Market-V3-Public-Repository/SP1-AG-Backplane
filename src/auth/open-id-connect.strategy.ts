@@ -45,6 +45,7 @@ import {Client, ClientMetadata, Issuer} from 'openid-client';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {AuthenticationStrategyOptions} from './auth.options';
 import {VerifiableCredential} from '../models/verifiableCredential.model';
+import {IdToken} from '../models/idToken.model';
 
 export const OPENID_STRATEGY_NAME = 'openIdConnect';
 export const OPENID_SECURITY_SCHEMA = {openIdConnect: []};
@@ -86,31 +87,8 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     const params = this.client.callbackParams(request);
     const tokenSet = await this.client.callback(this.client.metadata.redirect_uris![0], params);
 
-    const data = decode(tokenSet.id_token!) as {[p: string]: unknown};
-    let user = findById(data.sub as string); //TODO no té sentit guardar info del usuari.... ens arriba per el tokenset.id_token
-    if (!user) {
-      const scope = this.extractScope(data);
-      user = createUser(data.sub as string, scope);
-    }
-    return {id: user.id, scope: user.scope} as BackplaneUserProfile;
-  }
-
-  private extractScope(data: {[p: string]: unknown}): string {
-    const verifiedClaims = data.verified_claims as {[p: string]: unknown};
-    if (!verifiedClaims) return '';
-    const claims: string[] = [];
-    //TODO s'ha de fer un decode verified claims es un jwt
-    this.decodeAndExtractClaims(verifiedClaims.trusted as string[])
-    if (verifiedClaims.trusted) claims.push(...this.decodeAndExtractClaims(verifiedClaims.trusted as string[]));
-    if (verifiedClaims.untrusted) claims.push(...this.decodeAndExtractClaims(verifiedClaims.untrusted as string[]));
-    return claims.join(' ');
-  }
-
-  private decodeAndExtractClaims(vc: string[]): string[]{
-    const decodeVC: VerifiableCredential[] = vc.map(v => ((decode(v) as {[p: string]: unknown}).vc as VerifiableCredential));
-    const claims: string[] = [];
-    decodeVC.forEach(v => claims.push(...Object.keys(v.credentialSubject).filter(k => v.credentialSubject[k])))
-    return claims;
+    const data = decode(tokenSet.id_token!) as IdToken; //TODO delete, openIdStrategy is not used
+    return {id: data.sub} as BackplaneUserProfile;
   }
 
   async processOptions() {

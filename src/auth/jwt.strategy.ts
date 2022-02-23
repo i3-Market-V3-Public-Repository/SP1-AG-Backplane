@@ -36,6 +36,10 @@ import {injectable, inject, Provider} from '@loopback/core';
 import {asSpecEnhancer, mergeSecuritySchemeToSpec, OASEnhancer, OpenApiSpec} from '@loopback/rest';
 import {AuthenticationStrategy} from '@loopback/authentication';
 import {Request} from 'express';
+import {IdToken} from '../models/idToken.model';
+import {decode} from 'jsonwebtoken';
+import {VerifiableCredential} from '../models/verifiableCredential.model';
+import {User} from '../models';
 
 interface Payload {
   sub: string;
@@ -50,11 +54,15 @@ export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy>
   ) {
   }
 
-  //TODO verify jwt against VC Service
+  //TODO verify credentials against VC Service
   verify(req: Request, payload: Payload, done: VerifiedCallback) {
-    const user = findById(payload.sub);
-    const jwt = this.getJwt()(req);
+    const idToken = decode(<string>JWTAuthStrategyProvider.getIdToken()(req)) as unknown as IdToken;
+    const user = new User({
+      id: payload.sub,
+      scope: JWTAuthStrategyProvider.extractScope(idToken),
+    });
     //TODO SEND request to VC Verify
+    return done(null, user)
     if (user) {
       console.log(`jwt for user ${payload.sub} verified and the user is in the db`);
       return done(null, user);
@@ -63,17 +71,40 @@ export class JWTAuthStrategyProvider implements Provider<AuthenticationStrategy>
     return done(null, false);
   }
 
+   static extractScope(data: IdToken): string {
+    const verifiedClaims = data.verified_claims as {[p: string]: unknown};
+    if (!verifiedClaims) return '';
+    const claims: string[] = [];
+    if (verifiedClaims.trusted) claims.push(...this.decodeAndValidateClaims(verifiedClaims.trusted as string[]));
+    if (verifiedClaims.untrusted) claims.push(...this.decodeAndValidateClaims(verifiedClaims.untrusted as string[]));
+    return claims.join(' ');
+  }
+
+  static decodeAndValidateClaims(vc: string[]): string[]{
+    const claims: string[] = [];
+    const decodeVC: VerifiableCredential[] = vc.map(v => ((decode(v) as {[p: string]: unknown}).vc as VerifiableCredential));
+    decodeVC.forEach(v => {
+      //TODO Verify V against VC service and check validity
+      claims.push(...Object.keys(v.credentialSubject).filter(k => v.credentialSubject[k]))
+    })
+    return claims;
+  }
+
   value(): AuthenticationStrategy {
     const jwtStrategy = new Strategy({
-      jwtFromRequest: this.getJwt(),
+      jwtFromRequest: JWTAuthStrategyProvider.getJwt(),
       passReqToCallback: true,
       secretOrKey: this.key,
     }, this.verify);
     return new StrategyAdapter(jwtStrategy, JWT_STRATEGY_NAME);
   }
 
-  getJwt(): JwtFromRequestFunction{
+  static getJwt(): JwtFromRequestFunction{
     return ExtractJwt.fromHeader('access_token');
+  }
+
+  static getIdToken(): JwtFromRequestFunction{
+    return ExtractJwt.fromHeader('id_token');
   }
 }
 
