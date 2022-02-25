@@ -44,7 +44,6 @@ import {decode} from 'jsonwebtoken';
 import {Client, ClientMetadata, Issuer} from 'openid-client';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {AuthenticationStrategyOptions} from './auth.options';
-import {VerifiableCredential} from '../models/verifiableCredential.model';
 import {IdToken} from '../models/idToken.model';
 
 export const OPENID_STRATEGY_NAME = 'openIdConnect';

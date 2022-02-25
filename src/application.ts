@@ -53,6 +53,7 @@ import { OpenIdConnectAuthenticationStrategyBindings} from './services';
 import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
 import {CustomSendProvider} from './providers/custom-send.provider';
 import {CustomRejectProvider} from './providers/custom-reject.provider';
+import {JwtCustomAuthenticationStrategyProvider} from './auth/jwtCustom.provider';
 
 export {ApplicationConfig};
 
@@ -87,6 +88,17 @@ export class BackplaneApplication extends BootMixin(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
       JWTAuthStrategyProvider,
+      {
+        namespace:
+        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      },
+    );
+
+    // AUTH 2
+    addExtension(
+      this,
+      AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+      JwtCustomAuthenticationStrategyProvider,
       {
         namespace:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
