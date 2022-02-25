@@ -13,37 +13,45 @@ import * as jose from 'jose'
 import {JWTAuthStrategyProvider} from './jwt.strategy';
 import {VerifiableCredential} from '../models';
 import {decode} from 'jsonwebtoken';
+import {IssuerMetadata} from 'openid-client';
 
 export class JwtCustomAuthenticationStrategy implements AuthenticationStrategy {
   name = JWT_CUSTOM_STRATEGY_NAME;
+  jwks: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>;
 
-  constructor(private jwks: GetKeyFunction<JWSHeaderParameters, FlattenedJWSInput>) {}
+  constructor(private issuerMetadata: IssuerMetadata) {
+    this.jwks = jose.createRemoteJWKSet(new URL(issuerMetadata.jwks_uri as string))
+  }
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     console.log("Authenticate!!!");
     let resAccessToken;
     let resIdToken;
     let user;
-    try {
+    try { //check Access_Token
       resAccessToken = await this.validateJWT(JWTAuthStrategyProvider.getJwt()(request) as string);
-      resIdToken = await this.validateJWT(JWTAuthStrategyProvider.getIdToken()(request) as string);
-      const claims = this.extractScope(resIdToken.payload);
-      if (resAccessToken && resIdToken){
-        user = {
-          id: resIdToken.payload.sub,
-          scope: claims,
-          [securityId]: resIdToken.payload.sub
-        };
-      }
-      return user as UserProfile;
     }catch (error){
-      JwtCustomAuthenticationStrategy.processAuthenticationError(error);
+      JwtCustomAuthenticationStrategy.processAuthenticationError('access_token', error);
     }
+    try { //check Id_Token
+      resIdToken = await this.validateJWT(JWTAuthStrategyProvider.getIdToken()(request) as string);
+    }catch (error){
+      JwtCustomAuthenticationStrategy.processAuthenticationError('id_token', error);
+    }
+    if (resAccessToken && resIdToken){
+      const claims = this.extractScope(resIdToken.payload);
+      user = {
+        id: resIdToken.payload.sub,
+        scope: claims,
+        [securityId]: resIdToken.payload.sub
+      };
+    }
+    return user as UserProfile;
   }
 
-  private static processAuthenticationError(error: Error){
+  private static processAuthenticationError(type: string, error: Error){
     const err = new Error();
-    Object.assign(err, {statusCode: 401, message: error.message})
+    Object.assign(err, {statusCode: 401, message: type + ': ' + error.message})
     throw err;
   }
 
@@ -51,7 +59,7 @@ export class JwtCustomAuthenticationStrategy implements AuthenticationStrategy {
     return jose.jwtVerify(jwt,
       this.jwks,
       {
-        issuer: 'https://identity4.i3-market.eu'
+        issuer: this.issuerMetadata.issuer
       });
   }
 
