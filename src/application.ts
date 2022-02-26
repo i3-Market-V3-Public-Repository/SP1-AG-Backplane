@@ -38,7 +38,6 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
 import {AuthenticationBindings, AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthStrategyProvider, JWTSpecEnhancer} from './auth/jwt.strategy';
 import express from 'express';
 import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
 import {
@@ -53,7 +52,7 @@ import { OpenIdConnectAuthenticationStrategyBindings} from './services';
 import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
 import {CustomSendProvider} from './providers/custom-send.provider';
 import {CustomRejectProvider} from './providers/custom-reject.provider';
-import {JwtCustomAuthenticationStrategyProvider} from './auth/jwtCustom.provider';
+import {JwtAuthenticationStrategyProvider, JWTSpecEnhancer} from './auth/jwt.strategy';
 
 export {ApplicationConfig};
 
@@ -87,18 +86,7 @@ export class BackplaneApplication extends BootMixin(
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      JWTAuthStrategyProvider,
-      {
-        namespace:
-        AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      },
-    );
-
-    // AUTH 2
-    addExtension(
-      this,
-      AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      JwtCustomAuthenticationStrategyProvider,
+      JwtAuthenticationStrategyProvider,
       {
         namespace:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,

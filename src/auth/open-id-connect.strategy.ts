@@ -87,7 +87,11 @@ export class OpenIdConnectAuthenticationStrategy implements AuthenticationStrate
     const tokenSet = await this.client.callback(this.client.metadata.redirect_uris![0], params);
 
     const data = decode(tokenSet.id_token!) as IdToken; //TODO delete, openIdStrategy is not used
-    return {id: data.sub} as BackplaneUserProfile;
+    return {
+      id: data.sub,
+      idToken: tokenSet.id_token as string,
+      accessToken: tokenSet.access_token as string,
+    } as unknown as BackplaneUserProfile;
   }
 
   async processOptions() {
