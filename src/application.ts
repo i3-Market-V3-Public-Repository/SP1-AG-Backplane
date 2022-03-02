@@ -38,7 +38,6 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
 import {AuthenticationBindings, AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthStrategyProvider, JWTSpecEnhancer} from './auth/jwt.strategy';
 import express from 'express';
 import {OpenIdConnectProvider, OpenIdSpecEnhancer} from './auth/open-id-connect.strategy';
 import {
@@ -53,6 +52,7 @@ import { OpenIdConnectAuthenticationStrategyBindings} from './services';
 import {OPEN_ID_METADATA, OPEN_ID_WELL_KNOWN_URL} from './auth/open-id-connect.options';
 import {CustomSendProvider} from './providers/custom-send.provider';
 import {CustomRejectProvider} from './providers/custom-reject.provider';
+import {JwtAuthenticationStrategyProvider, JWTSpecEnhancer} from './auth/jwt.strategy';
 
 export {ApplicationConfig};
 
@@ -86,7 +86,7 @@ export class BackplaneApplication extends BootMixin(
     addExtension(
       this,
       AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-      JWTAuthStrategyProvider,
+      JwtAuthenticationStrategyProvider,
       {
         namespace:
         AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
@@ -130,6 +130,11 @@ export class BackplaneApplication extends BootMixin(
     this.bind(RestBindings.SequenceActions.SEND).toProvider(CustomSendProvider);
     this.bind(RestBindings.SequenceActions.REJECT).toProvider(CustomRejectProvider);
     this.bind(RestBindings.ERROR_WRITER_OPTIONS).to({safeFields: ['responseBody']});
+
+    //AJV custom properties
+    this.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({
+      validation: {keywords: ['example']},
+    });
 
     this.projectRoot = __dirname;
     this.bootOptions = {
