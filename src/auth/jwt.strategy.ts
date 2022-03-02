@@ -8,12 +8,12 @@ import {
   JWTVerifyResult,
 } from 'jose/dist/types/types';
 import * as jose from 'jose'
-import {VerifiableCredential} from '../models';
 import {decode} from 'jsonwebtoken';
 import {Issuer, IssuerMetadata} from 'openid-client';
 import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {ExtractJwt, JwtFromRequestFunction} from 'passport-jwt';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
+import {VerifiableCredential} from '../models/verifiableCredential.model';
 
 
 export const JWT_STRATEGY_NAME = 'jwt';
@@ -116,13 +116,15 @@ export class JWTSpecEnhancer implements OASEnhancer {
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
     const modifiedSpec = mergeSecuritySchemeToSpec(spec, this.name, {
-      type: 'http',
-      bearerFormat: 'JWT',
+      type: 'apiKey',
+      in: 'header',
+      name: 'id_token'
     });
 
     modifiedSpec.components!.securitySchemes![this.name] = {
-      type: 'http',
-      bearerFormat: 'JWT',
+      type: 'apiKey',
+      in: 'header',
+      name: 'id_token'
     };
     return modifiedSpec;
   }
