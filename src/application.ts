@@ -131,6 +131,11 @@ export class BackplaneApplication extends BootMixin(
     this.bind(RestBindings.SequenceActions.REJECT).toProvider(CustomRejectProvider);
     this.bind(RestBindings.ERROR_WRITER_OPTIONS).to({safeFields: ['responseBody']});
 
+    //AJV custom properties
+    this.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({
+      validation: {keywords: ['example']},
+    });
+
     this.projectRoot = __dirname;
     this.bootOptions = {
       controllers: {
