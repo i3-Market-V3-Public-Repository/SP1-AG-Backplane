@@ -35,26 +35,11 @@ import {get, Request, Response, RestBindings} from '@loopback/rest';
 import {JWT_SECURITY_SCHEMA, JWT_STRATEGY_NAME} from '../auth/jwt.strategy';
 import {OPENID_SECURITY_SCHEMA, OPENID_STRATEGY_NAME} from '../auth/open-id-connect.strategy';
 import {BackplaneUserProfile} from '../auth/users';
-import {JWT_AUD, JWT_ISS} from '../auth/jwt.options';
-import * as jwt from 'jsonwebtoken';
 import {User} from '../models';
 
 export class AuthController {
-  constructor(@inject('config.jwt.key') private key: string | Buffer,) {
+  constructor() {
   }
-
-  private getJWT(user: BackplaneUserProfile) {
-    const jwtClaims = {
-      sub: user.id,
-      iss: JWT_ISS,
-      aud: JWT_AUD,
-      exp: Math.floor(Date.now() / 1000) + 604800,
-      scopes: user.scopes,
-    };
-
-    return jwt.sign(jwtClaims, this.key);
-  }
-
 
   @authenticate(JWT_STRATEGY_NAME)
   @get('auth/whoAmI', {
@@ -124,7 +109,9 @@ export class AuthController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
     response.statusCode = 200;
-    const token = this.getJWT(user);
-    response.json({type: 'jwt', token});
+
+    //const token = this.getJWT(user);
+
+    response.json({type: 'jwt', idToken: user.idToken, accessToken: user.accessToken});
   }
 }

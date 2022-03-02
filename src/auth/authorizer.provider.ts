@@ -41,7 +41,7 @@ export class AuthorizationProvider implements Provider<Authorizer> {
   value(): Authorizer {
     return this.authorize.bind(this);
   }
-
+  //TODO CHECK CLAIMs
   async authorize(
     context: AuthorizationContext,
     metadata: AuthorizationMetadata,
