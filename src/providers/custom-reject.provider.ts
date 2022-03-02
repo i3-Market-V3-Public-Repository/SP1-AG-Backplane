@@ -29,9 +29,10 @@
 #
 */
 
-import {BindingScope, inject, injectable} from '@loopback/core';
+import {BindingScope, inject, injectable, Provider} from '@loopback/core';
 import {ErrorWriterOptions} from 'strong-error-handler';
-import {LogError, Reject, RejectProvider, RestBindings} from '@loopback/rest';
+import {HandlerContext, LogError, Reject, RejectProvider, RestBindings, writeErrorToResponse} from '@loopback/rest';
+import {HttpError} from 'http-errors';
 
 interface CustomError extends Error{
   name: string;
@@ -42,24 +43,31 @@ interface CustomError extends Error{
   };
   responseBody?: unknown;
 }
+const codeToStatusCodeMap: {[key: string]: number} = {
+  ENTITY_NOT_FOUND: 404,
+};
 
 @injectable({scope: BindingScope.SINGLETON})
-export class CustomRejectProvider extends RejectProvider {
+export class CustomRejectProvider implements Provider<Reject> {
   constructor(
     @inject(RestBindings.SequenceActions.LOG_ERROR)
     protected logError: LogError,
     @inject(RestBindings.ERROR_WRITER_OPTIONS, {optional: true})
     protected errorWriterOptions?: ErrorWriterOptions,
-  ) {super(logError, errorWriterOptions)}
+  ) {}
 
   value(): Reject {
-    return (context, error: Error) => {
+    return (context, error) => {
       const customError: CustomError = error;
       if (customError.response != null){
         customError.responseBody = customError.response.body;
       }
       this.action(context, customError);
     }
+  }
+
+  action({request, response}: HandlerContext, error: Error) {
+    RejectProvider.value(this.logError, this.errorWriterOptions)({request, response}, error);
   }
 
 }

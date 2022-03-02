@@ -31,10 +31,11 @@ stages:
   - gather
   - integrate
   - build
+  - test
   - deploy
 
 variables:
-  INTEGRATOR_VERSION: "1.0.18"
+  LOOPBACK_CLI_VERSION: "3.1.0"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   SECRETS_URL: "http://95.211.3.251:8081/repository/i3m-raw/backplane/env/secrets.json"
@@ -79,9 +80,9 @@ get-subsystems-oas:
 
 integrate-subsystems:
   stage: integrate
-  image: node:15-slim
+  image: node:16.14-bullseye-slim
   script:
-    - npm i -g @loopback/cli@2.15.1
+    - npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION
     - ./bulk_integrator . ./specs
   artifacts:
     untracked: true
@@ -114,6 +115,49 @@ build:
     - docker build -t $NEXUS_IMAGE_TAG -t $GITLAB_IMAGE_TAG .
     - docker push $NEXUS_IMAGE_TAG
     - docker push $GITLAB_IMAGE_TAG
+
+image-analysis-trivy:
+  stage: test
+  needs: ['integrate-subsystems']
+  image: docker:stable
+  services:
+    - name: docker:dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    # See https://github.com/docker-library/docker/pull/166
+    DOCKER_TLS_CERTDIR: ""
+    IMAGE: trivy-ci-test:$CI_COMMIT_SHA
+  before_script:
+    - export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+    - echo $TRIVY_VERSION
+    - wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
+    # ignore gobinary trivy during build
+    - echo "trivy" > .dockerignore
+  allow_failure: true
+  script:
+    # Build image
+    - docker build -t $IMAGE .
+    # Build report
+    - ./trivy --cache-dir .trivycache/ image --exit-code 0 --no-progress --format template --template "@contrib/gitlab-codequality.tpl" -o gl-codeclimate.json $IMAGE
+    # Print report
+    - ./trivy --cache-dir .trivycache/ image --exit-code 0 --no-progress --severity HIGH $IMAGE
+    # Fail on critical vulnerabilities
+    - ./trivy --cache-dir .trivycache/ image --exit-code 1 --severity CRITICAL --no-progress $IMAGE
+  cache:
+    paths:
+      - .trivycache/
+  # Enables https://docs.gitlab.com/ee/user/application_security/container_scanning/ (Container Scanning report is available on GitLab EE Ultimate or GitLab.com Gold)
+  artifacts:
+    paths:
+      - gl-codeclimate.json
+    reports:
+      codequality: gl-codeclimate.json # Currently it generates an unescaped json fixed here https://github.com/aquasecurity/trivy/commit/e618d83dae653eb78b4c03d097b69ed94fd56dce
+  # Gitlab CI currently doesn't support adding more than one codequality report. But you can join them using jq
+  # jq -s 'add' prev-codeclimate.json trivy-codeclimate.json > gl-codeclimate.json
+
 
 
 update-secrets:
