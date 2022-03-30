@@ -98,6 +98,8 @@ integrate-subsystems:
 
 build:
   stage: build
+  only:
+    - master
   image:
     name: docker:19.03.13
   variables:
