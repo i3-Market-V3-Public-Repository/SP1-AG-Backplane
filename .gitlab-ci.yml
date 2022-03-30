@@ -164,12 +164,16 @@ image-analysis-trivy:
 
 update-secrets:
   stage: build
+  only:
+    - master
   script:
     - echo $NEXUS_PASSWORD | curl --request PUT -u "$NEXUS_USER" --upload-file .secrets.json $SECRETS_URL
 
 
 deploy-ansible-backplane:
   stage: deploy
+  only:
+    - master
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_BACKPLANE_JOB_URL"'
 
