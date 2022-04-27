@@ -138,7 +138,7 @@ image-analysis-trivy:
     - wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
     # ignore gobinary trivy during build
     - echo "trivy" > .dockerignore
-  allow_failure: true
+  allow_failure: false
   script:
     # Build image
     - docker build -t $IMAGE .
