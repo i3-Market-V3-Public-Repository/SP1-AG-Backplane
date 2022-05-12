@@ -45,8 +45,9 @@ RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
 fi
 
 # Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
-RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
-      && apt-get update -y && apt-get -y install libssl1.1
+#RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
+#      && apt-get update -y && apt-get -y install libssl1.1
+RUN apt-get -y update && apt-get -y upgrade
 
 USER node
 
