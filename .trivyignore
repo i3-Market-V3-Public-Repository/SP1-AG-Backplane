@@ -1,0 +1,3 @@
+# Already fixed in libssl 1.1.1o trivy don't have the current fixed version
+# check https://security-tracker.debian.org/tracker/CVE-2022-1292
+CVE-2022-1292

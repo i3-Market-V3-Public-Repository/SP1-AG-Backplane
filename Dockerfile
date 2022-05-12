@@ -34,20 +34,19 @@ ARG GITLAB_TOKEN
 ARG INTEGRATOR_VERSION=2.1.8
 ARG LOOPBACK_CLI_VERSION=3.1.0
 
+# Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
+RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
+      && apt-get -y update && apt-get -y ugrade && apt-get -y install libssl1.1
+
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
       mkdir -p /integrator && \
-      apt-get -y update &&  \
       apt-get -y install ca-certificates curl git --no-install-recommends && \
       curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
       apt-get -y remove --auto-remove curl && \
       chmod +x /integrator/bulk_integrator; \
 fi
 
-# Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
-#RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
-#      && apt-get update -y && apt-get -y install libssl1.1
-RUN apt-get -y update && apt-get -y upgrade
 
 USER node
 
