@@ -36,7 +36,7 @@ ARG LOOPBACK_CLI_VERSION=3.1.0
 
 # Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
 RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
-      && apt-get -y update && apt-get -y ugrade && apt-get -y install libssl1.1
+      && apt-get -y update && apt-get -y upgrade && apt-get -y install libssl1.1
 
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
