@@ -44,7 +44,12 @@ RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       chmod +x /integrator/bulk_integrator; \
 fi
 
+# Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
+RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
+      && apt-get update -y && apt-get -y install libssl1.1
+
 USER node
+
 
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
