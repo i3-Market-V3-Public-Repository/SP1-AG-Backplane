@@ -35,8 +35,11 @@ ARG INTEGRATOR_VERSION=2.1.8
 ARG LOOPBACK_CLI_VERSION=3.1.0
 
 # Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
-RUN (echo "deb http://ftp.de.debian.org/debian bookworm main" | tee -a /etc/apt/sources.list) \
-      && apt-get -y update && apt-get -y upgrade && apt-get -y install libssl1.1
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -y wget \
+     && mkdir sec_fix \
+     && wget -O sec_fix/libc6.deb http://ftp.de.debian.org/debian/pool/main/g/glibc/libc6_2.33-7_amd64.deb \
+     && wget -O sec_fix/libssl.deb http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1o-1_amd64.deb \
+     && dpkg -i sec_fix/libc6.deb && dpkg -i sec_fix/libssl.deb && rm -rf sec_fix
 
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
