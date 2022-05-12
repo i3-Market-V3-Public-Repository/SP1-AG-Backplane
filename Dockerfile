@@ -25,7 +25,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
+
+# syntax=docker/dockerfile:1
+FROM alpine:3.14 AS builder
+WORKDIR /
+RUN mkdir sec_fix \
+    && wget -O sec_fix/libc6.deb http://ftp.de.debian.org/debian/pool/main/g/glibc/libc6_2.33-7_amd64.deb \
+    && wget -O sec_fix/libssl.deb http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1o-1_amd64.deb
+
 
 FROM node:16.14-bullseye-slim
 ARG ADD_INTEGRATOR=0
@@ -34,17 +41,23 @@ ARG GITLAB_TOKEN
 ARG INTEGRATOR_VERSION=2.1.8
 ARG LOOPBACK_CLI_VERSION=3.1.0
 
+# Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
+COPY --from=builder /sec_fix /sec_fix
+RUN apt-get -y update && apt-get -y upgrade \
+     && dpkg -i /sec_fix/libc6.deb && dpkg -i /sec_fix/libssl.deb && rm -rf /sec_fix
+
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
       mkdir -p /integrator && \
-      apt-get -y update &&  \
       apt-get -y install ca-certificates curl git --no-install-recommends && \
       curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
       apt-get -y remove --auto-remove curl && \
       chmod +x /integrator/bulk_integrator; \
 fi
 
+
 USER node
+
 
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
