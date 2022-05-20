@@ -26,6 +26,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# syntax=docker/dockerfile:1
+FROM alpine:3.14 AS builder
+WORKDIR /
+RUN mkdir sec_fix \
+    && wget -O sec_fix/libdb53.deb http://ftp.debian.org/debian/pool/main/d/db5.3/libdb5.3_5.3.28+dfsg1-0.9_amd64.deb
+
+
 FROM node:16.14-bullseye-slim
 ARG ADD_INTEGRATOR=0
 ARG GITLAB_USER
@@ -33,7 +40,10 @@ ARG GITLAB_TOKEN
 ARG INTEGRATOR_VERSION=2.1.8
 ARG LOOPBACK_CLI_VERSION=3.1.0
 
-RUN apt-get -y update && apt-get -y upgrade
+# Update Libssl check https://security-tracker.debian.org/tracker/CVE-2022-1292
+COPY --from=builder /sec_fix /sec_fix
+RUN apt-get -y update && apt-get -y upgrade \
+     && dpkg -i /sec_fix/libdb53.deb && rm -rf /sec_fix
 
 RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
@@ -44,7 +54,9 @@ RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
       chmod +x /integrator/bulk_integrator; \
 fi
 
+
 USER node
+
 
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
