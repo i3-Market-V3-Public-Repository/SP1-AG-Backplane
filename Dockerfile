@@ -30,7 +30,7 @@
 FROM alpine:3.14 AS builder
 WORKDIR /
 RUN mkdir sec_fix \
-    && wget -O sec_fix/libdb53.deb http://ftp.debian.org/debian/pool/main/d/db5.3/libdb5.3_5.3.28+dfsg1-0.9_amd64.deb
+    && wget -O sec_fix/libdb53.deb http://ftp.debian.org/debian/pool/main/d/db5.3/libdb5.3_5.3.28+dfsg1-0.9_amd64.deb #CVE-2019-8457
 
 
 FROM node:16.14-bullseye-slim
