@@ -14,6 +14,7 @@ import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {ExtractJwt, JwtFromRequestFunction} from 'passport-jwt';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {VerifiableCredential} from '../models/verifiableCredential.model';
+import {OperationObject, PathItemObject, SecurityRequirementObject} from 'openapi3-ts/src/model/OpenApi';
 
 
 export const JWT_STRATEGY_NAME = 'jwt';
@@ -115,17 +116,30 @@ export class JWTSpecEnhancer implements OASEnhancer {
   name = JWT_STRATEGY_NAME;
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
-    const modifiedSpec = mergeSecuritySchemeToSpec(spec, this.name, {
+    let modifiedSpec = mergeSecuritySchemeToSpec(spec, this.name, {
       type: 'apiKey',
       in: 'header',
       name: 'id_token'
     });
 
-    modifiedSpec.components!.securitySchemes![this.name] = {
+    modifiedSpec = mergeSecuritySchemeToSpec(modifiedSpec, "jwtAccess", {
       type: 'apiKey',
       in: 'header',
-      name: 'id_token'
-    };
+      name: 'access_token'
+    });
+
+
+
+    //Iterate over all paths and add the security schema (access token)
+    //this Could also be directly defined in the OAS files
+    Object.keys(modifiedSpec.paths).forEach((pathGroupKey) => {
+      for (const operationId in modifiedSpec.paths[pathGroupKey]) {
+        const operationDef = modifiedSpec.paths[pathGroupKey][operationId]
+        if (operationDef.security?.some((obj: SecurityRequirementObject) => {return JWT_STRATEGY_NAME in obj})) {
+          operationDef.security.push({jwtAccess: []})
+        }
+      }
+    });
     return modifiedSpec;
   }
 }
