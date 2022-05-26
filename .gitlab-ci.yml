@@ -109,8 +109,8 @@ build:
       - name: docker:19.03.13-dind
         entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$NEXUS_REGISTRY"]
   before_script:
-    - echo $NEXUS_PASSWORD | docker login $NEXUS_REGISTRY --username $NEXUS_USER --password-stdin
-    - echo $CI_REGISTRY_PASSWORD | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+    - docker login $NEXUS_REGISTRY -u $NEXUS_USER -p $NEXUS_PASSWORD
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
     - docker build -t ${NEXUS_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_REF_NAME} -t ${GITLAB_BASE_IMAGE_TAG}:latest -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_REF_NAME} .
     # Push to Nexus
