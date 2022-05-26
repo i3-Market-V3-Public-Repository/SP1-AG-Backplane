@@ -109,8 +109,8 @@ build:
       - name: docker:19.03.13-dind
         entrypoint: ["sh", "-c", "dockerd-entrypoint.sh --insecure-registry=$NEXUS_REGISTRY"]
   before_script:
-    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - docker login $NEXUS_REGISTRY -u $NEXUS_USER -p $NEXUS_PASSWORD
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u $NEXUS_USER -p $NEXUS_PASSWORD $NEXUS_REGISTRY
   script:
     - docker build -t ${NEXUS_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} -t ${GITLAB_BASE_IMAGE_TAG}:latest -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} .
     # Push to Nexus
@@ -119,9 +119,8 @@ build:
     # Push to GitLab
     - docker push ${GITLAB_BASE_IMAGE_TAG}:latest
     - docker push ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}
-  rules: #only run on release tags
-    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/
-      when: always
+  rules: #only run on release tags and protected
+    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
 
 image-analysis-trivy:
@@ -173,25 +172,21 @@ update-secrets:
   script:
     - echo $NEXUS_PASSWORD | curl --request PUT -u "$NEXUS_USER" --upload-file .secrets.json $SECRETS_URL
   rules: #only run on release tags
-    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/
-      when: always
-
+    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
 deploy-ansible-backplane:
   stage: deploy
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_BACKPLANE_JOB_URL"'
   rules: #only run on release tags
-    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/
-      when: always
+    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
 deploy-ansible-sdk:
   stage: deploy
   script:
     - 'curl --request POST --header "Authorization: Bearer $ANSIBLE_DEPLOY_TOKEN" "$ANSIBLE_SDK_JOB_URL"'
   rules: #only run on release tags
-    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/
-      when: always
+    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
 deploy-backplane-docs:
   stage: deploy
