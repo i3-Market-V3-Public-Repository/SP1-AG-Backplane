@@ -5,8 +5,12 @@ const glob = require('glob-promise');
 export abstract class OASModifier{
 
   static async optimizeServers() {
+    if (process.env.PUBLIC_URI == null){
+      console.log("Public URI is not set -> Skip server optimization")
+      return;
+    }
     const processes: Promise<void>[] = [];
-    const hostIP = (await dns.promises.lookup(process.env.HOST as string)).address;
+    const hostIP = (await dns.promises.lookup(new URL(process.env.PUBLIC_URI).hostname)).address;
     const files = await glob('integrated_services/*.json');
     files.forEach((file: string) => {
       processes.push(OASModifier.optimizeServer(hostIP, file))
