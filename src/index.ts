@@ -31,10 +31,16 @@
 
 import {ApplicationConfig, BackplaneApplication} from './application';
 import * as fs from 'fs';
+import {OASModifier} from './utils/OASModifier';
+
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
+  const disableOptimizer = process.env.DISABLE_SERVER_OPTIMIZER
+  if (disableOptimizer == null || !disableOptimizer) {
+    await OASModifier.optimizeServers();
+  }
   const app = new BackplaneApplication(options);
   await app.boot();
   await app.start();
