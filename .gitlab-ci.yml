@@ -35,6 +35,7 @@ stages:
   - deploy
 
 variables:
+  DOCKER_TLS_CERTDIR: "/certs"
   LOOPBACK_CLI_VERSION: "3.1.0"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
@@ -103,7 +104,6 @@ build:
   variables:
     NEXUS_REGISTRY: $I3_MARKET_NODE_4:8123
     NEXUS_BASE_IMAGE_TAG: $NEXUS_REGISTRY/backplane
-    DOCKER_TLS_CERTDIR: ""
     GITLAB_BASE_IMAGE_TAG: $CI_REGISTRY_IMAGE
   services:
       - name: docker:19.03.13-dind
@@ -126,16 +126,11 @@ build:
 image-analysis-trivy:
   stage: test
   needs: ['integrate-subsystems']
-  image: docker:stable
+  image: docker:19.03.13
   services:
-    - name: docker:dind
-      entrypoint: ["env", "-u", "DOCKER_HOST"]
-      command: ["dockerd-entrypoint.sh"]
+    - name: docker:19.03.13-dind
+      entrypoint: ["sh", "-c", "dockerd-entrypoint.sh"]
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_DRIVER: overlay2
-    # See https://github.com/docker-library/docker/pull/166
-    DOCKER_TLS_CERTDIR: ""
     IMAGE: trivy-ci-test:$CI_COMMIT_SHA
   before_script:
     - apk update --no-cache && apk add --no-cache curl
