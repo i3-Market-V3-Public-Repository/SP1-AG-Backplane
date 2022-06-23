@@ -26,16 +26,23 @@ export abstract class OASModifier{
   private static async optimizeServer(hostIP: string, loc: string){
     const fileContent = await fs.promises.readFile(loc, 'utf-8'); //sync block initialization thread
     const content = JSON.parse(fileContent);
-    if (content.servers == null || content.servers.length <= 1){ //skip if no server is set or just one
+    if (content.servers == null){ //skip if no server is set or just one
       return;
     }
     for(const server of content.servers) {
-      const aux = await dns.promises.lookup(new URL(server.url).hostname)
-      if (aux.address === hostIP && content.servers[0] !== server){ //only optimize if matches in a different position than 0
-        console.log("Setting servers priority -> %s / to: %s", loc, server.url)
-        //set priority to current node move to first position
-        const auxArray = content.servers.filter((value: never) => value !== server)
-        content.servers = [server, ...auxArray];
+      const serverURL = new URL(server.url)
+      let aux;
+      try {
+        aux = await dns.promises.lookup(serverURL.hostname)
+      }catch (error){
+        continue;
+      }
+      if (aux.address === hostIP){ //Override servers pointing to localhost
+        //set priority to current node setting localhost as server hostname
+        serverURL.hostname = "localhost";
+        server.url = serverURL.toString();
+        console.log("Found current-server -> %s  | set server : %s", loc, server.url)
+        content.servers = [server];
         //write to file
         await fs.promises.writeFile(loc, JSON.stringify(content));
         break;
