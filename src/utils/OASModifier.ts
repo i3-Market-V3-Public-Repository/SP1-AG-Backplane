@@ -30,17 +30,14 @@ export abstract class OASModifier{
       return;
     }
     for(const server of content.servers) {
-      const serverURL = new URL(server.url)
       let aux;
       try {
-        aux = await dns.promises.lookup(serverURL.hostname)
+        aux = await dns.promises.lookup(new URL(server.url).hostname)
       }catch (error){
         continue;
       }
       if (aux.address === hostIP){ //Override servers pointing to localhost
         //set priority to current node setting localhost as server hostname
-        serverURL.hostname = "localhost";
-        server.url = serverURL.toString();
         console.log("Found current-server -> %s  | set server : %s", loc, server.url)
         content.servers = [server];
         //write to file
