@@ -3,3 +3,5 @@ npm-debug.log
 /dist
 # Cache used by TypeScript's incremental build
 *.tsbuildinfo
+.git
+.gitlab-ci.yaml
