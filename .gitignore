@@ -68,3 +68,6 @@ typings/
 certificates
 
 .secrets.json
+
+.hypothesis
+.trivycache

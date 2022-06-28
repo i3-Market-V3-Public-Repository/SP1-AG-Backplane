@@ -55,10 +55,11 @@ services:
 #      - <path to .env file>
       - .env
     environment:
-      CERTS_PATH: /certificates
-      SECRETS_PATH: /.secrets.json
+      OIDC_CLIENT_ID: ${BACKPLANE_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${BACKPLANE_OIDC_CLIENT_SECRET}
+      OIDC_PROVIDER_WELL_KNOWN_URL: ${BACKPLANE_OIDC_PROVIDER_WELL_KNOWN_URL}
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
 #      Change "./certificates" below for the path containing the certificates
 #      - <path to certificates directory>:/certificates
