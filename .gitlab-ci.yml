@@ -30,9 +30,10 @@
 stages:
   - gather
   - integrate
-  - build
   - test
+  - publish
   - deploy
+  - confidence-check
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
@@ -78,7 +79,6 @@ get-subsystems-oas:
       - spect/README.md
     expire_in: 10 mins
 
-
 integrate-subsystems:
   stage: integrate
   image: node:16.14-bullseye-slim
@@ -96,9 +96,8 @@ integrate-subsystems:
       - .secrets.json
     expire_in: 10 mins
 
-
 build:
-  stage: build
+  stage: publish
   image:
     name: docker:19.03.13
   variables:
@@ -122,6 +121,26 @@ build:
   rules: #only run on release tags and protected
     - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
+integration-test:
+  stage: test
+  image:
+    name: node:16.14-bullseye
+  before_script:
+    - export $(cat $ENV_FILE_TEST | xargs)
+    - npm install
+    - apt-get -y update && apt-get -y install python3 python3-pip
+    - python3 -m pip install schemathesis
+    - npm start > /dev/null &
+    - sleep 20
+  script:
+    - |
+      schemathesis run http://localhost:3000/openapi.json -H "id_token:test" -H "access_token: test" \
+        -E ^/greeter --validate-schema=false --hypothesis-max-examples=1 --hypothesis-derandomize \
+        -c not_a_server_error
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .hypothesis
 
 image-analysis-trivy:
   stage: test
@@ -161,10 +180,28 @@ image-analysis-trivy:
   # Gitlab CI currently doesn't support adding more than one codequality report. But you can join them using jq
   # jq -s 'add' prev-codeclimate.json trivy-codeclimate.json > gl-codeclimate.json
 
-
+check-deployment:
+  stage: confidence-check
+  image:
+    name: python:3.10-bullseye
+  before_script:
+    - python3 -m pip install schemathesis
+  script:
+    - |
+      schemathesis run http://${I3_MARKET_NODE_2}:3000/openapi.json -H "id_token:test" -H "access_token: test" \
+        -E ^/greeter --validate-schema=false --hypothesis-max-examples=1 --hypothesis-derandomize \
+        -c not_a_server_error
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .hypothesis
+  rules: #only run on release tags and protected
+    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
+      when: delayed
+      start_in: 5 minutes
 
 update-secrets:
-  stage: build
+  stage: publish
   script:
     - echo $NEXUS_PASSWORD | curl --request PUT -u "$NEXUS_USER" --upload-file .secrets.json $SECRETS_URL
   rules: #only run on release tags

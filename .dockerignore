@@ -5,3 +5,7 @@ npm-debug.log
 *.tsbuildinfo
 .git
 .gitlab-ci.yaml
+.env
+.env.template
+.hypothesis
+.trivycache
