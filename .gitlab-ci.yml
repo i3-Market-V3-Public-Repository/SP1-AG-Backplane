@@ -38,9 +38,9 @@ stages:
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
   LOOPBACK_CLI_VERSION: "3.1.0"
+  SCHEMATHESIS_VERSION: "3.15.6"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
-  SECRETS_URL: "http://${I3_MARKET_NODE_4}:8081/repository/i3m-raw/backplane/env/secrets.json"
   ANSIBLE_BACKPLANE_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/13/launch/"
   ANSIBLE_SDK_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/24/launch/"
 
@@ -54,16 +54,6 @@ get-integrator:
   artifacts:
     paths:
       - bulk_integrator
-    expire_in: 10 mins
-
-get-secrets:
-  stage: gather
-  image: curlimages/curl:latest
-  script:
-    - echo $NEXUS_PASSWORD | curl --request GET -u "$NEXUS_USER" $SECRETS_URL --output .secrets.json
-  artifacts:
-    paths:
-      - .secrets.json
     expire_in: 10 mins
 
 get-subsystems-oas:
@@ -93,7 +83,6 @@ integrate-subsystems:
       - src/models/index.ts
       - src/repositories/index.ts
       - src/services/index.ts
-      - .secrets.json
     expire_in: 10 mins
 
 build:
@@ -129,7 +118,7 @@ integration-test:
     - export $(cat $ENV_FILE_TEST | xargs)
     - npm install
     - apt-get -y update && apt-get -y install python3 python3-pip
-    - python3 -m pip install schemathesis
+    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
     - npm start > /dev/null &
     - sleep 20
   script:
@@ -185,7 +174,7 @@ check-deployment:
   image:
     name: python:3.10-bullseye
   before_script:
-    - python3 -m pip install schemathesis
+    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
   script:
     - |
       schemathesis run http://${I3_MARKET_NODE_2}:3000/openapi.json -H "id_token:test" -H "access_token: test" \
@@ -199,13 +188,6 @@ check-deployment:
     - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
       when: delayed
       start_in: 5 minutes
-
-update-secrets:
-  stage: publish
-  script:
-    - echo $NEXUS_PASSWORD | curl --request PUT -u "$NEXUS_USER" --upload-file .secrets.json $SECRETS_URL
-  rules: #only run on release tags
-    - if: $CI_COMMIT_TAG =~ /[0-9]+\.[0-9]+\.[0-9]+/ && $CI_COMMIT_REF_PROTECTED
 
 deploy-ansible-backplane:
   stage: deploy

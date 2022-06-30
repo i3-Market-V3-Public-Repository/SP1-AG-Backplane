@@ -61,8 +61,6 @@ You have two options:
   To do that, make the following changes in [src/index.ts](src/index.ts):
   ```typescript
   if (require.main === module) {
-    const secretsPath = process.env.SECRETS_PATH ?? './.secrets.json';
-    const secrets = JSON.parse(fs.readFileSync(secretsPath).toString());
   
     // ---------------- Comment or delete from here ----------------
     const certificatesPath = process.env.CERTS_PATH ?? './certificates';
@@ -90,8 +88,7 @@ You have two options:
         cert: cert,                             //Comment or remove line
         ca: caCert,                             //Comment or remove line
         rejectUnauthorized: false,
-      },
-      secrets: secrets
+      }
     };
     main(config).catch(err => {
       console.error('Cannot start the application.', err);

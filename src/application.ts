@@ -61,8 +61,6 @@ export class BackplaneApplication extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
-    this.bind('config.secrets').to(options.secrets);
-    this.bind('config.jwt.key').to(options.jwtKey);
 
     // Set up the custom sequence
     this.sequence(MySequence);
