@@ -51,18 +51,7 @@ export async function main(options: ApplicationConfig = {}) {
   return app;
 }
 
-function getSecrets() {
-  const secretsPath = process.env.SECRETS_PATH ?? './.secrets.json';
-  try {
-    return JSON.parse(fs.readFileSync(secretsPath).toString());
-  } catch (e) {
-    return {}
-  }
-}
-
 if (require.main === module) {
-  const secrets = getSecrets()
-
   // const certificatesPath = process.env.CERTS_PATH ?? './certificates';
   // const cert = fs.readFileSync(`${certificatesPath}/cert.crt`);
   // const key = fs.readFileSync(`${certificatesPath}/key.key`);
@@ -88,8 +77,6 @@ if (require.main === module) {
       // ca: caCert,
       // rejectUnauthorized: false,
     },
-    secrets: secrets,
-    jwtKey: 'hey' //key
   };
   main(config).catch(err => {
     console.error('Cannot start the application.', err);

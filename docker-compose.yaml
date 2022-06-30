@@ -64,6 +64,3 @@ services:
 #      Change "./certificates" below for the path containing the certificates
 #      - <path to certificates directory>:/certificates
       - ./certificates:/certificates
-#      Change "./.secrets.json" below for the path of the secrets.json file
-#      - <path of secrets file>:/.secrets.json
-      - ./.secrets.json:/.secrets.json

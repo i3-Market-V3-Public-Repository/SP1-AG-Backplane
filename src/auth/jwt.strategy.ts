@@ -14,7 +14,7 @@ import {Getter, inject, injectable, Provider} from '@loopback/core';
 import {ExtractJwt, JwtFromRequestFunction} from 'passport-jwt';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {VerifiableCredential} from '../models/verifiableCredential.model';
-import {OperationObject, PathItemObject, SecurityRequirementObject} from 'openapi3-ts/src/model/OpenApi';
+import {SecurityRequirementObject} from 'openapi3-ts/src/model/OpenApi';
 
 
 export const JWT_STRATEGY_NAME = 'jwt';
@@ -50,12 +50,14 @@ export class JwtAuthenticationStrategy implements AuthenticationStrategy {
     let resIdToken;
     let user;
     try { //check Access_Token
-      resAccessToken = await this.validateJWT(JwtAuthenticationStrategy.getJwt()(request) as string);
+      const accessToken = JwtAuthenticationStrategy.retrieveAccessToken(request);
+      resAccessToken = await this.validateJWT(accessToken);
     }catch (error){
       JwtAuthenticationStrategy.processAuthenticationError('access_token', error);
     }
     try { //check Id_Token
-      resIdToken = await this.validateJWT(JwtAuthenticationStrategy.getIdToken()(request) as string);
+      const idToken = JwtAuthenticationStrategy.retrieveIdToken(request);
+      resIdToken = await this.validateJWT(idToken);
     }catch (error){
       JwtAuthenticationStrategy.processAuthenticationError('id_token', error);
     }
@@ -68,6 +70,21 @@ export class JwtAuthenticationStrategy implements AuthenticationStrategy {
       };
     }
     return user as UserProfile;
+  }
+  private static retrieveAccessToken(request: Request) {
+    const accessToken = JwtAuthenticationStrategy.getJwt()(request) as string
+    if (accessToken == null || accessToken.length === 0){
+      throw new Error("Authenticated endpoint - Missing Access Token (header access_token)")
+    }
+    return accessToken
+  }
+
+  private static retrieveIdToken(request: Request) {
+    const idToken = JwtAuthenticationStrategy.getIdToken()(request) as string
+    if (idToken == null || idToken.length === 0){
+      throw new Error("Authenticated endpoint - Missing Id Token (header id_token)")
+    }
+    return idToken
   }
 
   private static processAuthenticationError(type: string, error: Error){
