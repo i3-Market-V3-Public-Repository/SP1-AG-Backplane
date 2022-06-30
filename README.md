@@ -97,20 +97,6 @@ You have two options:
   }
   ```
 
-### Subsystems secrets
-
-If you haven't integrated any subsystem with the Backplane or you have integrated a subsystem using the Subsystem Integration Tool in this project, skip this step.
-
-The Backplane needs a secret for each subsystem integrated with it, and these secrets must be provided through a file
-named `.secrets.json`, located in the project root (same level as this README).  
-This file must contain a single object, with key-value pairs corresponding to the subsystems name and its secret:
-```json
-{
-  "<Subsystem name>": "<Subsystem secret>",
-  "greeter": "jasghfjwgifxguiwegmfgmwzuiegmfiu"
-}
-```
-
 ### OpenId Connect configuration
 
 To be able to authenticate to the Backplane, you will need to register the Backplane as a client (Relying party) for the desired OIDC provider. Do that first and then come back.  
@@ -144,8 +130,8 @@ HOST=<Backplane's listening host>(0.0.0.0)
 
 # Only set if you have created the `certificates` folder in a different location (defaults to ./certificates)
 CERTS_PATH=<Path to the certificates directory>
-# You probably won't have to set that one never
-SECRETS_PATH=<Path to the secrets file>
+# Optional - Disable de smart subsystem's server election on startup
+DISABLE_SERVER_OPTIMIZER=true
 ```
 
 ## Run the Backplane
