@@ -43,6 +43,7 @@ variables:
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   ANSIBLE_BACKPLANE_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/13/launch/"
   ANSIBLE_SDK_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/24/launch/"
+  DISABLE_TRIVY_STEP: "false"
 
 
 get-integrator:
@@ -159,6 +160,11 @@ image-analysis-trivy:
     - ./trivy --cache-dir .trivycache/ image --exit-code 0 --no-progress --severity HIGH,CRITICAL $IMAGE
     # Fail on critical vulnerabilities
     - ./trivy --cache-dir .trivycache/ image --exit-code 1 --severity CRITICAL --ignore-unfixed --no-progress $IMAGE
+  rules:
+    - if: $DISABLE_TRIVY_STEP == "true"
+      when: manual
+      allow_failure: true
+    - if: $DISABLE_TRIVY_STEP != "true" #always true
   cache:
     paths:
       - .trivycache/
