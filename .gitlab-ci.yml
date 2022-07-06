@@ -62,6 +62,7 @@ get-subsystems-oas:
   variables:
     OAS_COMMIT_REF: master
   script:
+    - echo "get data from ${OAS_COMMIT_REF}"
     - git clone -b $OAS_COMMIT_REF $OAS_REPO_URL ./specs
   artifacts:
     paths:
