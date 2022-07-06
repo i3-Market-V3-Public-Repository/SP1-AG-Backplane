@@ -58,8 +58,10 @@ get-integrator:
 
 get-subsystems-oas:
   stage: gather
+  variables:
+    OAS_COMMIT_REF: master
   script:
-    - git clone $OAS_REPO_URL ./specs
+    - git clone -b $OAS_COMMIT_REF $OAS_REPO_URL ./specs
   artifacts:
     paths:
       - specs/
