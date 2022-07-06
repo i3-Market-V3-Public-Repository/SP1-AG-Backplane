@@ -45,6 +45,11 @@ variables:
   ANSIBLE_SDK_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/24/launch/"
   DISABLE_TRIVY_STEP: "false"
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Don't run on detached merge requests pipelines
+      when: never
+    - when: always
 
 get-integrator:
   stage: gather
