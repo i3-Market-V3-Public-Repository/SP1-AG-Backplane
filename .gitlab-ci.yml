@@ -163,7 +163,7 @@ image-analysis-trivy:
     - ./trivy --cache-dir .trivycache/ image --exit-code 1 --severity CRITICAL --ignore-unfixed --no-progress $IMAGE
   rules:
     - if: $DISABLE_TRIVY_STEP == "true"
-      when: manual
+      when: never
       allow_failure: true
     - if: $DISABLE_TRIVY_STEP != "true" #always true
   cache:
