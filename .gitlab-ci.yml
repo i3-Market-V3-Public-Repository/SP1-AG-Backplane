@@ -128,8 +128,9 @@ integration-test:
     - npm install
     - apt-get -y update && apt-get -y install python3 python3-pip
     - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
-    - npm start > /dev/null &
+    - npm start > ./startup_log.txt &
     - sleep 20
+    - cat startup_log.txt
   script:
     - |
       schemathesis run http://localhost:3000/openapi.json -H "id_token:test" -H "access_token: test" \
@@ -139,6 +140,9 @@ integration-test:
     key: $CI_COMMIT_REF_SLUG
     paths:
       - .hypothesis
+  artifacts:
+    paths:
+      - ./startup_log.txt
 
 image-analysis-trivy:
   stage: test
