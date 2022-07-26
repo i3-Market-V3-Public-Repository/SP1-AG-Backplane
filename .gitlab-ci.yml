@@ -195,7 +195,7 @@ check-deployment:
     - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
   script:
     - |
-      schemathesis run http://${I3_MARKET_NODE_2}:3000/openapi.json -H "id_token:test" -H "access_token: test" \
+      schemathesis run http://${I3_MARKET_NODE_1}:3000/openapi.json -H "id_token:test" -H "access_token: test" \
         -E ^/greeter --validate-schema=false --hypothesis-max-examples=1 --hypothesis-derandomize \
         -c not_a_server_error
   cache:
