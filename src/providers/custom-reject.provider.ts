@@ -31,20 +31,24 @@
 
 import {BindingScope, inject, injectable, Provider} from '@loopback/core';
 import {ErrorWriterOptions} from 'strong-error-handler';
-import {HandlerContext, LogError, Reject, RejectProvider, RestBindings, writeErrorToResponse} from '@loopback/rest';
+import {HandlerContext, LogError, Reject, RejectProvider, RestBindings} from '@loopback/rest';
 import {HttpError} from 'http-errors';
 
 interface CustomError extends Error{
   name: string;
   message: string;
+  statusCode?: number;
   stack?: string;
   response?: {
     body?: unknown
   };
+  code?: string | number;
   responseBody?: unknown;
 }
+
 const codeToStatusCodeMap: {[key: string]: number} = {
   ENTITY_NOT_FOUND: 404,
+  ECONNREFUSED: 503 //Service unavailable
 };
 
 @injectable({scope: BindingScope.SINGLETON})
@@ -59,10 +63,23 @@ export class CustomRejectProvider implements Provider<Reject> {
   value(): Reject {
     return (context, error) => {
       const customError: CustomError = error;
-      if (customError.response != null){
+      this.processCustomStatusCodes(customError);
+      if (customError.response != null) {
         customError.responseBody = customError.response.body;
+      }else{
+        customError.responseBody = customError.message;
       }
       this.action(context, customError);
+    }
+  }
+
+  processCustomStatusCodes(error: CustomError) {
+    const err = <HttpError>error;
+    if (!err.status && !err.statusCode && err.code) {
+      const customStatus = codeToStatusCodeMap[err.code];
+      if (customStatus) {
+        err.statusCode = customStatus;
+      }
     }
   }
 
