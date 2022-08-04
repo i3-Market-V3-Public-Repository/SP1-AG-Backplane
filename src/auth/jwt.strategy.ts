@@ -15,6 +15,8 @@ import {ExtractJwt, JwtFromRequestFunction} from 'passport-jwt';
 import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {VerifiableCredential} from '../models/verifiableCredential.model';
 import {SecurityRequirementObject} from 'openapi3-ts/src/model/OpenApi';
+import {AuthIssuerNotFoundError} from '../utils/customErrors/AuthIssuerNotFoundError';
+import {CustomError} from '../utils/customErrors/CustomError';
 
 
 export const JWT_STRATEGY_NAME = 'jwt';
@@ -30,7 +32,12 @@ export class JwtAuthenticationStrategyProvider implements Provider<Authenticatio
   }
   async value(): Promise<AuthenticationStrategy> {
     if (!this.strategy) {
-      const issuer = await Issuer.discover(this.wellKnownURL);
+      let issuer;
+      try{
+        issuer = await Issuer.discover(this.wellKnownURL);
+      }catch (err) { //TODO check this catch, there is a race condition between the catch and an event emitter handled by strong-error-handler
+        throw new AuthIssuerNotFoundError(this.wellKnownURL);
+      }
       this.strategy = new JwtAuthenticationStrategy(issuer.metadata)
     }
     return this.strategy
@@ -88,9 +95,8 @@ export class JwtAuthenticationStrategy implements AuthenticationStrategy {
   }
 
   private static processAuthenticationError(type: string, error: Error){
-    const err = new Error();
-    Object.assign(err, {statusCode: 401, message: type + ': ' + error.message})
-    throw err;
+    const message = type + ': ' + error.message;
+    throw new CustomError(message, 401);
   }
 
   private validateJWT(jwt: string): Promise<JWTVerifyResult> {
