@@ -26,35 +26,43 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-FROM node:16.14-bullseye-slim
-ARG ADD_INTEGRATOR=0
+# syntax=docker/dockerfile:1
+ARG flavour=16.14-bullseye-slim
+
+FROM alpine:3.14 as get-integrator
+ARG INTEGRATOR_VERSION=2.2.0
 ARG GITLAB_USER
 ARG GITLAB_TOKEN
-ARG INTEGRATOR_VERSION=2.2.0
-ARG LOOPBACK_CLI_VERSION=3.1.0
-
-RUN apt-get -y update && apt-get -y upgrade
-
-RUN if [ "$ADD_INTEGRATOR" = 1 ]; then \
-      npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION && \
-      mkdir -p /integrator && \
-      apt-get -y install ca-certificates curl git --no-install-recommends && \
-      curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
-      apt-get -y remove --auto-remove curl && \
-      chmod +x /integrator/bulk_integrator; \
-fi
+RUN apk add curl ca-certificates git
+RUN mkdir -p /integrator && \
+    curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
+    chmod +x /integrator/bulk_integrator
 
 
+FROM node:${flavour} as builder
 USER node
-
-
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node package*.json ./
-
 RUN npm install
 COPY --chown=node . .
-
 RUN chmod +x ./scripts/* && npm run build
 
+
+FROM node:${flavour} as with-integrator
+ARG LOOPBACK_CLI_VERSION=3.1.0
+RUN apt-get -y update && apt-get -y upgrade
+RUN npm i -g @loopback/cli@$LOOPBACK_CLI_VERSION
+COPY --from=get-integrator --chown=node /integrator/bulk_integrator /integrator/bulk_integrator
+COPY --from=builder --chown=node /home/node/app /home/node/app
+USER node
+WORKDIR /home/node/app
+CMD ./scripts/start_docker_with_integrator.sh
+
+
+FROM node:${flavour} as base
+RUN apt-get -y update && apt-get -y upgrade
+COPY --from=builder --chown=node /home/node/app /home/node/app
+USER node
+WORKDIR /home/node/app
 CMD [ "node", "." ]

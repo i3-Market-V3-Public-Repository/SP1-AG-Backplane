@@ -143,7 +143,7 @@ npm start
 
 The Backplane will start listening on port `3000`.
 
-## Running the Backplane with docker
+## Running the Backplane with docker locally
 
 You can use docker compose to run the backplane.  
 To do so, follow the same setup instructions as above, and create a file called `.env` placed at the project root directory (same level as this README), containing all the necessary environment variables.
@@ -162,26 +162,27 @@ docker-compose up
 Backplane Dockerfile allows including the integrator executable providing on demand OAS integration.
 [docker-compose.yaml](docker-compose.yaml) defines the service *backplane-with-integrator* as an example. It includes
 the integrator during bulding phase, following the entrypoint checks if there is any OAS inside backplane container 
-/home/node/app/specs directory, otherwise, it will download all the OAS located in subsystems OAS GitLab repository.
-
+`/home/node/app/specs` directory. If so, the integrator will be executed following the server, otherwise the integration
+phase will be skipped.
 #### Dockerfile Build Variables
-* <b>ADD_INTEGRATOR</b>: Set to 1 to include the integrator manager executable (stored in /integrator/bulk_integrator)
-  * Optional, by default: 0
-* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable and OAS if needed 
-  * Required if ADD_INTEGRATOR = 1
-* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable and OAS if needed 
-  * Required if ADD_INTEGRATOR = 1
+
+* <b>GITLAB_USER</b>: Deploy user used for downloading the integrator manager executable
+* <b>GITLAB_TOKEN</b>: Deploy token used for downloading the integrator manager executable
 * <b>INTEGRATOR_VERSION</b>: Integrator manager version to use 
   * Optional, by default: 1.0.18
 
 #### Use cases
-* <b>Retrieve OAS from GitLab, integrate them and run the backplane</b>:
-  * Ensure there is no specs directory mapped inside the container 
-  * Use [./scripts/start_docker.sh](scripts/start_docker.sh) as CMD
-
 * <b>Integrate specified OAS and run the Backplane</b>:
-  * Mount your local OAS specs directory to */home/node/app/specs* container's path (use docker bind mount)
-  * Use [./scripts/start_docker.sh](scripts/start_docker.sh) as CMD
+  * Mount your local OAS specs directory to `/home/node/app/specs` container's path (use docker bind mount)
+
+## Remote images
+You can find the remote images in the public repositories managed by the consortium (Gitlab and Nexus). Currently, there are 2 flavours available:
+ - major.minor.patch
+ - major.minor.path-with-integrator
+
+Both include the latest OAS files, whereas the `-with-integrator` version it also includes 
+ the latest integrator executable available compatible with the current backplane version 
+ (located inside `/integrator/`). 
 
 ## Further Information
 
