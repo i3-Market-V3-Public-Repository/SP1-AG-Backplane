@@ -147,9 +147,9 @@ integration-test:
 image-analysis-trivy:
   stage: test
   needs: ['integrate-subsystems']
-  image: docker:19.03.13
+  image: docker:20.10.17
   services:
-    - name: docker:19.03.13-dind
+    - name: docker:20.10.17-dind
       entrypoint: ["sh", "-c", "dockerd-entrypoint.sh"]
   variables:
     IMAGE: trivy-ci-test:$CI_COMMIT_SHA
