@@ -110,8 +110,8 @@ publish-docker:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker login -u $NEXUS_USER -p $NEXUS_PASSWORD $NEXUS_REGISTRY
   script:
-    - docker buildx build --target=base --cache-from ${GITLAB_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} -t ${GITLAB_BASE_IMAGE_TAG}:latest -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} .
-    - docker buildx build --target=with-integrator --cache-from ${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator --build-arg INTEGRATOR_VERSION=${INTEGRATOR_VERSION} --build-arg GITLAB_USER=gitlab-ci-token --build-arg GITLAB_TOKEN=${CI_JOB_TOKEN} -t ${NEXUS_BASE_IMAGE_TAG}:latest-with-integrator -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator .
+    - docker buildx build --target=base --cache-from=${GITLAB_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} -t ${GITLAB_BASE_IMAGE_TAG}:latest -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} .
+    - docker buildx build --target=with-integrator --cache-from=${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator --build-arg INTEGRATOR_VERSION=${INTEGRATOR_VERSION} --build-arg GITLAB_USER=gitlab-ci-token --build-arg GITLAB_TOKEN=${CI_JOB_TOKEN} -t ${NEXUS_BASE_IMAGE_TAG}:latest-with-integrator -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator .
     # Push to Nexus
     - docker push --all-tags ${NEXUS_BASE_IMAGE_TAG}
     # Push to GitLab
@@ -163,7 +163,7 @@ image-analysis-trivy:
   allow_failure: false
   script:
     # Build image
-    - docker buildx build --cache-from $CI_REGISTRY_IMAGE:latest --target=base -t $IMAGE .
+    - docker buildx build --cache-from=$CI_REGISTRY_IMAGE:latest --target=base -t $IMAGE .
     # Build report
     - ./trivy --cache-dir .trivycache/ image --exit-code 0 --no-progress --format template --severity HIGH,CRITICAL --template "@contrib/gitlab-codequality.tpl" -o gl-codeclimate.json $IMAGE
     # Print report
