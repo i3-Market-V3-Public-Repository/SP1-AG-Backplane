@@ -57,6 +57,7 @@ COPY --from=get-integrator --chown=node /integrator/bulk_integrator /integrator/
 COPY --from=builder --chown=node /home/node/app /home/node/app
 USER node
 WORKDIR /home/node/app
+EXPOSE 3000
 CMD ./scripts/start_docker_with_integrator.sh
 
 
@@ -65,4 +66,5 @@ RUN apt-get -y update && apt-get -y upgrade
 COPY --from=builder --chown=node /home/node/app /home/node/app
 USER node
 WORKDIR /home/node/app
+EXPOSE 3000
 CMD [ "node", "." ]

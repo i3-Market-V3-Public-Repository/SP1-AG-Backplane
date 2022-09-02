@@ -16,7 +16,7 @@ import {OpenIdConnectAuthenticationStrategyBindings} from '../services';
 import {VerifiableCredential} from '../models/verifiableCredential.model';
 import {SecurityRequirementObject} from 'openapi3-ts/src/model/OpenApi';
 import {AuthIssuerNotFoundError} from '../utils/customErrors/AuthIssuerNotFoundError';
-import {CustomError} from '../utils/customErrors/CustomError';
+import {AuthError} from '../utils/customErrors/AuthError';
 
 
 export const JWT_STRATEGY_NAME = 'jwt';
@@ -35,10 +35,10 @@ export class JwtAuthenticationStrategyProvider implements Provider<Authenticatio
       let issuer;
       try{
         issuer = await Issuer.discover(this.wellKnownURL);
-      }catch (err) { //TODO check this catch, there is a race condition between the catch and an event emitter handled by strong-error-handler
+        this.strategy = new JwtAuthenticationStrategy(issuer.metadata)
+      }catch (err) {
         throw new AuthIssuerNotFoundError(this.wellKnownURL);
       }
-      this.strategy = new JwtAuthenticationStrategy(issuer.metadata)
     }
     return this.strategy
   }
@@ -60,13 +60,13 @@ export class JwtAuthenticationStrategy implements AuthenticationStrategy {
       const accessToken = JwtAuthenticationStrategy.retrieveAccessToken(request);
       resAccessToken = await this.validateJWT(accessToken);
     }catch (error){
-      JwtAuthenticationStrategy.processAuthenticationError('access_token', error);
+      throw new AuthError('access_token: ' + error.message);
     }
     try { //check Id_Token
       const idToken = JwtAuthenticationStrategy.retrieveIdToken(request);
       resIdToken = await this.validateJWT(idToken);
     }catch (error){
-      JwtAuthenticationStrategy.processAuthenticationError('id_token', error);
+      throw new AuthError('id_token: ' + error.message);
     }
     if (resAccessToken && resIdToken){
       const claims = this.extractScope(resIdToken.payload);
@@ -92,11 +92,6 @@ export class JwtAuthenticationStrategy implements AuthenticationStrategy {
       throw new Error("Authenticated endpoint - Missing Id Token (header id_token)")
     }
     return idToken
-  }
-
-  private static processAuthenticationError(type: string, error: Error){
-    const message = type + ': ' + error.message;
-    throw new CustomError(message, 401);
   }
 
   private validateJWT(jwt: string): Promise<JWTVerifyResult> {

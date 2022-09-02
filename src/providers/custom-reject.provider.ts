@@ -66,8 +66,6 @@ export class CustomRejectProvider implements Provider<Reject> {
       this.processCustomStatusCodes(customError);
       if (customError.response != null) {
         customError.responseBody = customError.response.body;
-      }else{
-        customError.responseBody = customError.message;
       }
       this.action(context, customError);
     }
