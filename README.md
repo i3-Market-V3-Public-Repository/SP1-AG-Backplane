@@ -171,6 +171,9 @@ phase will be skipped.
 * <b>INTEGRATOR_VERSION</b>: Integrator manager version to use 
   * Optional, by default: 1.0.18
 
+GITLAB_USER and GITLAB_TOKEN variables are being kept for local image building, when deploying to repositories, 
+we must use the `secrets` buildkit feature
+
 #### Use cases
 * <b>Integrate specified OAS and run the Backplane</b>:
   * Mount your local OAS specs directory to `/home/node/app/specs` container's path (use docker bind mount)
@@ -182,7 +185,27 @@ You can find the remote images in the public repositories managed by the consort
 
 Both include the latest OAS files, whereas the `-with-integrator` version it also includes 
  the latest integrator executable available compatible with the current backplane version 
- (located inside `/integrator/`). 
+ (located inside `/integrator/`).
+
+## Build production images
+
+### base
+
+Base backplane image, includes the latests OAS, without the integrator binary
+
+````bash
+  docker buildx build --target=base -t ${MY_REPO_PATH}:latest .
+````
+
+### with-integrator
+
+This one includes also the integrator
+
+````bash
+  export GITLAB_USER=<GITLAB_USER>
+  export GITLAB_TOKEN=<GITLAB_TOKEN>
+  docker buildx build --target=with-integrator --secret id=GITLAB_USER --secret id=GITLAB_TOKEN -t ${MY_REPO_PATH}:with-integrator-latest .
+````
 
 ## Further Information
 
