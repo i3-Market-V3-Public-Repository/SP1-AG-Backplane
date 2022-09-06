@@ -34,8 +34,10 @@ ARG INTEGRATOR_VERSION=2.2.0
 ARG GITLAB_USER
 ARG GITLAB_TOKEN
 RUN apk add curl ca-certificates git
-RUN mkdir -p /integrator && \
-    curl --request GET "https://$GITLAB_USER:$GITLAB_TOKEN@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
+RUN --mount=type=secret,id=GITLAB_USER \
+    --mount=type=secret,id=GITLAB_TOKEN \
+    mkdir -p /integrator && \
+    curl --request GET "https://$(cat /run/secrets/GITLAB_USER || echo $GITLAB_USER):$(cat /run/secrets/GITLAB_TOKEN || echo $GITLAB_TOKEN)@gitlab.com/api/v4/projects/21002959/packages/generic/integrator/$INTEGRATOR_VERSION/bulk_integrator" --output /integrator/bulk_integrator && \
     chmod +x /integrator/bulk_integrator
 
 

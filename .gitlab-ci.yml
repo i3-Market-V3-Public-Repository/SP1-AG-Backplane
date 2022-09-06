@@ -111,7 +111,7 @@ publish-docker:
     - docker login -u $NEXUS_USER -p $NEXUS_PASSWORD $NEXUS_REGISTRY
   script:
     - docker buildx build --target=base -t ${NEXUS_BASE_IMAGE_TAG}:latest -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} -t ${GITLAB_BASE_IMAGE_TAG}:latest -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG} .
-    - docker buildx build --target=with-integrator --build-arg INTEGRATOR_VERSION=${INTEGRATOR_VERSION} --build-arg GITLAB_USER=${GITLAB_USER} --build-arg GITLAB_TOKEN=${GITLAB_TOKEN} -t ${NEXUS_BASE_IMAGE_TAG}:latest-with-integrator -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator .
+    - docker buildx build --target=with-integrator --build-arg INTEGRATOR_VERSION=${INTEGRATOR_VERSION} --secret id=GITLAB_USER --secret id=GITLAB_TOKEN -t ${NEXUS_BASE_IMAGE_TAG}:latest-with-integrator -t ${NEXUS_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:latest-with-integrator -t ${GITLAB_BASE_IMAGE_TAG}:${CI_COMMIT_TAG}-with-integrator .
     # Push to Gitlab
     - docker push --all-tags ${GITLAB_BASE_IMAGE_TAG}
     # Push to Nexus
