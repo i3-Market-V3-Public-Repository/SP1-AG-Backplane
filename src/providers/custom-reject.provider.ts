@@ -48,7 +48,8 @@ interface CustomError extends Error{
 
 const codeToStatusCodeMap: {[key: string]: number} = {
   ENTITY_NOT_FOUND: 404,
-  ECONNREFUSED: 503 //Service unavailable
+  ECONNREFUSED: 503, //Service unavailable
+  ENOTFOUND: 503
 };
 
 @injectable({scope: BindingScope.SINGLETON})
