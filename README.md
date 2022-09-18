@@ -131,8 +131,39 @@ HOST=<Backplane's listening host>(0.0.0.0)
 # Only set if you have created the `certificates` folder in a different location (defaults to ./certificates)
 CERTS_PATH=<Path to the certificates directory>
 # Optional - Disable de smart subsystem's server election on startup
-DISABLE_SERVER_OPTIMIZER=true
+DISABLE_SERVER_OPTIMIZER=false
+#Optional - Use filter tags to choose the destination server to use from the OAS definition
+# Comma separated strings. Ex: (docker-compose,default)
+SERVER_FILTER_TAGS=
 ```
+## Server election
+At this moment, the Backplane support multiple environment deployments. Each deployment might have 
+some different target servers for each OAS Subsystem definition.
+The Backplane can filter and choose the most convenient server based on the `SERVER_FILTER_TAGS` definition. Where
+tags can be defined inside each OAS server definition with the array `"x-tags": ["docker-compose"]`
+
+For example, an OAS subsystem with the following servers defined:
+```json
+  "servers": [
+    {
+      "url": "http://tokenizer:3001",
+      "x-tags": ["docker-compose"]
+    },
+    {
+      "url": "http://tokenizer.test.example:3001"
+    }
+  ],
+```
+When running the backplane with the environment variable `SERVER_FILTER_TAGS=docker-compose`. It 
+will choose the first definition to redirect all queries.
+
+If `SERVER_FILTER_TAGS` is not defined or empty, the filter process will not be performed.
+
+In case more than one server matches the filter and `DISABLE_SERVER_OPTIMIZER=false`, an election process will 
+be executed. Electing the first one passing the DNS Resolution Test.
+
+Note that if after running the DNS resolution test more than server is elected, it will 
+follow the priority order stated in the OAS file, being the first defined the most priority one.
 
 ## Run the Backplane
 

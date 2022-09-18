@@ -36,10 +36,7 @@ import {OASModifier} from './utils/OASModifier';
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
-  const disableOptimizer = process.env.DISABLE_SERVER_OPTIMIZER
-  if (disableOptimizer == null || disableOptimizer === "true") {
-    await OASModifier.optimizeServers();
-  }
+  await OASModifier.selectServer();
   const app = new BackplaneApplication(options);
   await app.boot();
   await app.start();
