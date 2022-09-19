@@ -24,7 +24,6 @@ export abstract class OASModifier{
   static async selectServerInner(fileLoc: string, filters: string[]){
     const fileContent = await fs.promises.readFile(fileLoc, 'utf-8');
     const content = JSON.parse(fileContent);
-
     let servers: OASServer[] = await this.getServers(filters, content);
     if (servers?.length <= 0){
       console.log('[%s] There are no server candidates, Im trying all...', fileLoc);
@@ -32,7 +31,7 @@ export abstract class OASModifier{
     }
     const serverElected = await this.getBestServer(servers, fileLoc);
 
-    return this.writeServerToFile(serverElected, fileLoc, content);
+    return this.writeServerToFile(serverElected, fileLoc);
   }
 
   /**
@@ -101,10 +100,13 @@ export abstract class OASModifier{
     return res;
   }
 
-  private static writeServerToFile(server: OASServer, fileLoc: string, content: { servers: OASServer[] | null; }){
-    content.servers = [server];
+  private static async writeServerToFile(server: OASServer, fileLoc: string){
     const baseName = Path.basename(fileLoc);
-    return fs.promises.writeFile(`integrated_services/${baseName}`, JSON.stringify(content));
+    const path = `integrated_services/${baseName}`
+    const fileContent = await fs.promises.readFile(path, 'utf-8');
+    const content = JSON.parse(fileContent);
+    content.servers = [server];
+    return fs.promises.writeFile(path, JSON.stringify(content));
   }
 
 }
