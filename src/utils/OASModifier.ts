@@ -25,10 +25,10 @@ export abstract class OASModifier{
     const fileContent = await fs.promises.readFile(fileLoc, 'utf-8');
     const content = JSON.parse(fileContent);
 
-    const servers: OASServer[] = await this.getServers(filters, content);
+    let servers: OASServer[] = await this.getServers(filters, content);
     if (servers?.length <= 0){
-      console.log('[%s] There are no server candidates, Im not modifying the OAS file...', fileLoc);
-      return;
+      console.log('[%s] There are no server candidates, Im trying all...', fileLoc);
+      servers = content.servers;
     }
     const serverElected = await this.getBestServer(servers, fileLoc);
 
