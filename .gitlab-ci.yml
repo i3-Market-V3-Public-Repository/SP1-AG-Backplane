@@ -39,7 +39,7 @@ variables:
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_BUILDKIT: 1
   LOOPBACK_CLI_VERSION: "3.1.0"
-  SCHEMATHESIS_VERSION: "3.15.6"
+  SCHEMATHESIS_VERSION: "3.17.2"
   INTEGRATOR_URL: "${CI_API_V4_URL}/projects/21002959/packages/generic/integrator/${INTEGRATOR_VERSION}/bulk_integrator"
   OAS_REPO_URL: "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/i3-market/code/wp4/backplane-subsystems-oas.git"
   ANSIBLE_BACKPLANE_JOB_URL: "http://${I3_MARKET_NODE_2}:19000/api/v2/job_templates/13/launch/"
@@ -127,7 +127,7 @@ integration-test:
     - export $(cat $ENV_FILE_TEST | xargs)
     - npm install
     - apt-get -y update && apt-get -y install python3 python3-pip
-    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
+    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION httpx
     - npm start > ./startup_log.txt &
     - sleep 20
     - cat startup_log.txt
