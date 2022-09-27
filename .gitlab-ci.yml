@@ -192,7 +192,7 @@ check-deployment:
   image:
     name: python:3.10-bullseye
   before_script:
-    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION
+    - python3 -m pip install schemathesis==$SCHEMATHESIS_VERSION httpx
   script:
     - |
       schemathesis run http://${I3_MARKET_NODE_1}:3000/openapi.json -H "id_token:test" -H "access_token: test" \
