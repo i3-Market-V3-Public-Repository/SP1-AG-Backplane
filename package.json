@@ -82,7 +82,7 @@
     "jsonwebtoken": "^8.5.1",
     "loopback-connector-openapi": "^6.2.0",
     "openid-client": "^4.4.0",
-    "passport-jwt": "^4.0.0",
+    "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "tslib": "^2.0.0"
   },
