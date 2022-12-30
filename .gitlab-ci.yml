@@ -143,6 +143,7 @@ integration-test:
   artifacts:
     paths:
       - ./startup_log.txt
+  allow_failure: true
 
 image-analysis-trivy:
   stage: test
