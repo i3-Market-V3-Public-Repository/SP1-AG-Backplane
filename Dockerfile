@@ -46,9 +46,9 @@ USER node
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node package*.json ./
-RUN npm ci
+RUN npm install
 COPY --chown=node . .
-RUN chmod +x ./scripts/* && npm run build
+RUN chmod +x ./scripts/* && npm run build --omit=dev
 
 
 FROM node:${flavour} as with-integrator
