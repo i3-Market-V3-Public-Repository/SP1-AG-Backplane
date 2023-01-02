@@ -46,7 +46,7 @@ USER node
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node package*.json ./
-RUN npm install
+RUN npm ci
 COPY --chown=node . .
 RUN chmod +x ./scripts/* && npm run build
 
