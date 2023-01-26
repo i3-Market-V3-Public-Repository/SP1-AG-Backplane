@@ -30,7 +30,7 @@
 ARG flavour=16.14-bullseye-slim
 
 FROM alpine:3.14 as get-integrator
-ARG INTEGRATOR_VERSION=2.3.0
+ARG INTEGRATOR_VERSION=2.5.0
 ARG GITLAB_USER
 ARG GITLAB_TOKEN
 RUN apk add curl ca-certificates git
