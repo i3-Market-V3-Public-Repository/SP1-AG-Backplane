@@ -157,6 +157,14 @@ export class BackplaneApplication extends BootMixin(
         );
         return result;
       } catch (err) {
+        if (err?.status === 302) { //redirect received, return the same redirect
+          return {
+            headers: err?.response.headers,
+            status: err?.response.status,
+            value: err?.response.body,
+            isOpenApi: true
+          };
+        }
         console.error(
             'Error received for %s %s',
             request.method,
