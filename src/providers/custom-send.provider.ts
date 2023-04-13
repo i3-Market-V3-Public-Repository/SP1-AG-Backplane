@@ -53,13 +53,22 @@ export class CustomSendProvider implements Provider<Send> {
    * handling function.
    */
   action(response: Response, result: OperationRetval) {
+    //Add here custom 302 response
     if (result?.isOpenApi) {
+      let content = '';
       const contentType = result.headers['content-type'];
       if (contentType != null && contentType.length > 0){
         response.setHeader('Content-Type', contentType);
-        response.end(CustomSendProvider.parseResult(result.value));
-        return;
+        content = CustomSendProvider.parseResult(result.value);
       }
+      if(result?.status){ //set status if forced
+        response.status(result.status);
+        if(result.status === 302){
+          response.setHeader('Location', result.headers['location']);
+        }
+      }
+      response.end(content);
+      return;
     }
     writeResultToResponse(response, result); //default behaviour
   }
