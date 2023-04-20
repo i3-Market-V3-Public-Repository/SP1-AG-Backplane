@@ -56,15 +56,14 @@ export class CustomSendProvider implements Provider<Send> {
     //Add here custom 302 response
     if (result?.isOpenApi) {
       let content = '';
-      const contentType = result.headers['content-type'];
-      if (contentType != null && contentType.length > 0){
-        response.setHeader('Content-Type', contentType);
+      this.setHeadersFromResult(response, result);
+      if (result.value != null) {
         content = CustomSendProvider.parseResult(result.value);
       }
       if(result?.status){ //set status if forced
         response.status(result.status);
         if(result.status === 302){
-          response.setHeader('Location', result.headers['location']);
+          response.setHeader('Location', result.headers['location']); //Ensure Location is updated
         }
       }
       response.end(content);
@@ -72,6 +71,21 @@ export class CustomSendProvider implements Provider<Send> {
     }
     writeResultToResponse(response, result); //default behaviour
   }
+
+  private setHeadersFromResult(response: Response, result: OperationRetval){
+    const ignoredHeaders = this.getIgnoreHeaders();
+    for (const key in result.headers){
+      if (ignoredHeaders.includes(key)) continue;
+      response.setHeader(key as string, result.headers[key]);
+    }
+  }
+
+  private getIgnoreHeaders(): string[]{
+    return [];
+  }
+
+
+
 
   private static parseResult(result: OperationRetval){
     let res;
