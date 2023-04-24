@@ -81,7 +81,7 @@ export class CustomSendProvider implements Provider<Send> {
   }
 
   private getIgnoreHeaders(): string[]{
-    return [];
+    return ['content-length', 'connection'];
   }
 
 
