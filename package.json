@@ -78,7 +78,7 @@
     "cookie-parser": "^1.4.5",
     "express-session": "^1.17.1",
     "glob-promise": "^4.2.2",
-    "jose": "^4.5.1",
+    "jose": "^4.13.2",
     "jsonwebtoken": "^9.0.0",
     "loopback-connector-openapi": "^6.2.0",
     "openid-client": "^5.4.0",
