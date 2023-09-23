@@ -69,7 +69,7 @@
     "@loopback/security": "^0.7.0",
     "@loopback/service-proxy": "^4.1.0",
     "@types/cookie-parser": "^1.4.2",
-    "@types/express-session": "^1.17.0",
+    "@types/express-session": "^1.17.7",
     "@types/jsonwebtoken": "^9.0.0",
     "@types/passport": "^1.0.4",
     "@types/passport-jwt": "^3.0.3",
